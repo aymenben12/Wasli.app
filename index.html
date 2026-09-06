@@ -2,8 +2,20 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>وصلي</title>
+
+<!-- PWA: manifest + icons + theme color -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff5538">
+<link rel="icon" href="icon-192.png">
+
+<!-- iOS: makes "Add to Home Screen" behave like a real standalone app -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="وصلي">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 <style>
 * {
   box-sizing: border-box;
@@ -3987,5 +3999,16 @@ function initializeWasli() {
 
 initializeWasli();
 </script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function() {
+      navigator.serviceWorker.register("service-worker.js").catch(function() {
+        /* silently ignore if unsupported in this environment */
+      });
+    });
+  }
+</script>
+
 </body>
 </html>
