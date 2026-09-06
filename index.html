@@ -1,0 +1,3991 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>وصلي</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #ff5538;
+  --primary-dark: #e94328;
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --text: #17181c;
+  --muted: #7b7e86;
+  --border: #e7e8ec;
+  --green: #16a56a;
+  --red: #e53935;
+  --yellow: #f5a623;
+  --shadow: 0 8px 30px rgba(0,0,0,.07);
+  --radius: 18px;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, "Noto Sans Arabic", sans-serif;
+}
+
+body {
+  direction: rtl;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(.98);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.screen {
+  min-height: 100vh;
+}
+
+/* ================= SPLASH ================= */
+
+.splash-screen {
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.splash-logo,
+.brand-logo {
+  width: 125px;
+  height: 125px;
+  border-radius: 34px;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+  font-weight: 900;
+  box-shadow: 0 15px 40px rgba(255,85,56,.25);
+}
+
+.splash-screen h1 {
+  font-size: 46px;
+  margin: 28px 0 5px;
+}
+
+.splash-screen p,
+.brand p {
+  color: var(--muted);
+  font-size: 19px;
+}
+
+/* ================= LOGIN ================= */
+
+.login-screen {
+  padding: 35px 16px 50px;
+  background:
+    radial-gradient(circle at top, rgba(255,85,56,.09), transparent 40%),
+    var(--bg);
+}
+
+.brand {
+  text-align: center;
+}
+
+.brand-logo {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 20px;
+  border-radius: 28px;
+  font-size: 48px;
+}
+
+.brand h1 {
+  font-size: 42px;
+  margin: 0;
+}
+
+.brand p {
+  margin: 8px 0 22px;
+}
+
+.language-switch {
+  display: flex;
+  gap: 8px;
+  max-width: 460px;
+  margin: 0 auto 15px;
+}
+
+.lang-btn {
+  flex: 1;
+  border: 0;
+  border-radius: 14px;
+  padding: 13px;
+  background: #eeeef0;
+  color: #444;
+}
+
+.lang-btn.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.login-card {
+  max-width: 460px;
+  margin: auto;
+  background: var(--card);
+  padding: 22px;
+  border-radius: 25px;
+  box-shadow: var(--shadow);
+}
+
+.login-card h2 {
+  margin: 0 0 6px;
+  font-size: 26px;
+}
+
+.muted {
+  color: var(--muted);
+  margin-top: 0;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.role-card {
+  border: 2px solid var(--border);
+  background: #fff;
+  border-radius: 15px;
+  padding: 12px 5px;
+  color: var(--text);
+}
+
+.role-card.active {
+  border-color: var(--primary);
+  background: rgba(255,85,56,.07);
+}
+
+.role-icon {
+  display: block;
+  font-size: 27px;
+  margin-bottom: 6px;
+}
+
+.role-card strong,
+.role-card small {
+  display: block;
+}
+
+.role-card small {
+  color: var(--muted);
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 7px;
+  font-size: 14px;
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: #fafafa;
+  border-radius: 13px;
+  padding: 13px;
+  outline: none;
+}
+
+.field textarea {
+  min-height: 85px;
+  resize: vertical;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  border-color: var(--primary);
+  background: #fff;
+}
+
+.primary-btn {
+  border: 0;
+  border-radius: 14px;
+  padding: 13px 18px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 800;
+}
+
+.primary-btn:hover {
+  background: var(--primary-dark);
+}
+
+.full {
+  width: 100%;
+}
+
+.demo-note {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 0;
+}
+
+/* ================= APP ================= */
+
+.app-screen {
+  min-height: 100vh;
+  padding-bottom: 78px;
+}
+
+.topbar {
+  background: #fff;
+  padding: 15px 17px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.topbar small {
+  color: var(--muted);
+}
+
+.location-btn {
+  display: block;
+  border: 0;
+  background: transparent;
+  padding: 4px 0;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 12px;
+  background: #f0f1f4;
+}
+
+.main-content,
+.dashboard-content {
+  max-width: 900px;
+  margin: auto;
+  padding: 18px 15px;
+}
+
+.hero {
+  background: linear-gradient(135deg, #ff5538, #ff765e);
+  color: #fff;
+  padding: 22px;
+  border-radius: 22px;
+  margin-bottom: 18px;
+}
+
+.hero h2 {
+  margin: 0 0 8px;
+  font-size: 25px;
+}
+
+.hero p {
+  margin: 0;
+  opacity: .9;
+}
+
+.search-box {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.search-box input {
+  width: 100%;
+  border: 0;
+  background: #fff;
+  box-shadow: var(--shadow);
+  border-radius: 15px;
+  padding: 15px 45px 15px 15px;
+  outline: none;
+}
+
+.search-box span {
+  position: absolute;
+  right: 15px;
+  top: 13px;
+  font-size: 20px;
+}
+
+.categories {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 7px;
+  margin-bottom: 17px;
+}
+
+.category-btn {
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 20px;
+  padding: 9px 15px;
+}
+
+.category-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0 12px;
+}
+
+.section-title h3 {
+  margin: 0;
+}
+
+.restaurant-card {
+  background: #fff;
+  border-radius: 20px;
+  margin-bottom: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.restaurant-head {
+  padding: 15px;
+  background: #fff7f5;
+}
+
+.restaurant-head h3 {
+  margin: 0 0 4px;
+}
+
+.restaurant-head small {
+  color: var(--muted);
+}
+
+.food-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+.food-card {
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.food-image {
+  width: 100%;
+  height: 115px;
+  object-fit: cover;
+  background: #eee;
+}
+
+.food-body {
+  padding: 10px;
+}
+
+.food-body h4 {
+  margin: 0 0 5px;
+}
+
+.food-body p {
+  color: var(--muted);
+  font-size: 12px;
+  min-height: 30px;
+  margin: 0 0 8px;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+}
+
+.price {
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.add-btn {
+  border: 0;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 11px;
+}
+
+/* ================= BOTTOM NAV ================= */
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  height: 70px;
+  background: rgba(255,255,255,.97);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  z-index: 20;
+}
+
+.nav-btn {
+  position: relative;
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+}
+
+.nav-btn span,
+.nav-btn small {
+  display: block;
+}
+
+.nav-btn span {
+  font-size: 21px;
+}
+
+.nav-btn small {
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+.nav-btn.active {
+  color: var(--primary);
+}
+
+.badge {
+  position: absolute;
+  top: 5px;
+  right: 30%;
+  background: var(--red);
+  color: #fff;
+  border-radius: 20px;
+  padding: 2px 6px;
+  font-size: 10px;
+}
+
+/* ================= ORDERS ================= */
+
+.order-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 15px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+
+.order-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.order-head h3 {
+  margin: 0 0 4px;
+}
+
+.order-items {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 12px 0;
+  padding: 10px 0;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0;
+}
+
+.status {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #eee;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.status.confirmed,
+.status.done {
+  background: #e3f7ed;
+  color: var(--green);
+}
+
+.status.rejected {
+  background: #ffebeb;
+  color: var(--red);
+}
+
+.status.onWay {
+  background: #e7f0ff;
+  color: #2367c9;
+}
+
+.status.waiting {
+  background: #fff4d9;
+  color: #a56a00;
+}
+
+.info-box {
+  background: #f7f7f8;
+  border-radius: 12px;
+  padding: 11px;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.action-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.action-btn {
+  flex: 1;
+  min-width: 100px;
+  border: 0;
+  border-radius: 11px;
+  padding: 10px;
+  font-weight: 700;
+}
+
+.action-green {
+  background: #e2f7ed;
+  color: var(--green);
+}
+
+.action-red {
+  background: #ffebeb;
+  color: var(--red);
+}
+
+.action-dark {
+  background: #25262a;
+  color: #fff;
+}
+
+/* ================= PROFILE ================= */
+
+.profile-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+.profile-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  margin-bottom: 12px;
+}
+
+/* ================= DASHBOARD ================= */
+
+.dashboard-header {
+  background: #fff;
+  padding: 17px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.dashboard-header small {
+  color: var(--muted);
+}
+
+.dashboard-header h2 {
+  margin: 4px 0 0;
+}
+
+.logout-btn {
+  border: 0;
+  border-radius: 11px;
+  padding: 10px;
+  background: #ffeded;
+  color: var(--red);
+  font-weight: 700;
+}
+
+.dashboard-tabs {
+  background: #fff;
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.dash-tab {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  padding: 14px;
+  color: var(--muted);
+  border-bottom: 3px solid transparent;
+}
+
+.dash-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.food-admin-card {
+  display: flex;
+  gap: 12px;
+  background: #fff;
+  padding: 12px;
+  border-radius: 15px;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+}
+
+.food-admin-card img {
+  width: 85px;
+  height: 85px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.food-admin-info {
+  flex: 1;
+}
+
+.food-admin-info h4 {
+  margin: 0 0 5px;
+}
+
+.food-admin-info p {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 6px;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.small-btn {
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 9px;
+  font-size: 11px;
+}
+
+.edit-btn {
+  background: #edf3ff;
+  color: #2864c7;
+}
+
+.delete-btn {
+  background: #ffeded;
+  color: var(--red);
+}
+
+.add-food-btn {
+  margin-bottom: 15px;
+}
+
+/* ================= DRIVER ================= */
+
+.driver-status {
+  background: #fff;
+  padding: 15px;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  margin-bottom: 15px;
+}
+
+.online-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.switch {
+  position: relative;
+  width: 54px;
+  height: 30px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: #ccc;
+  border-radius: 30px;
+  transition: .2s;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  right: 4px;
+  top: 4px;
+  background: #fff;
+  border-radius: 50%;
+  transition: .2s;
+}
+
+.switch input:checked + .slider {
+  background: var(--green);
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(-24px);
+}
+
+/* ================= RATING ================= */
+
+.rating-box {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.rating-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+
+.stars {
+  display: flex;
+  gap: 5px;
+  direction: ltr;
+}
+
+.star {
+  border: 0;
+  background: transparent;
+  font-size: 25px;
+  padding: 0;
+  filter: grayscale(1);
+}
+
+.star.selected {
+  filter: grayscale(0);
+}
+
+/* ================= MODAL ================= */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-box {
+  background: #fff;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 25px 25px 0 0;
+  padding: 20px;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.modal-head h3 {
+  margin: 0;
+}
+
+.close-btn {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: #f0f1f3;
+  font-size: 25px;
+}
+
+/* ================= CART ================= */
+
+.cart-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  padding: 12px;
+  border-radius: 14px;
+  margin-bottom: 8px;
+}
+
+.cart-line-info {
+  flex: 1;
+}
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: #eee;
+}
+
+.total-box {
+  background: #fff;
+  border-radius: 18px;
+  padding: 15px;
+  box-shadow: var(--shadow);
+  margin-top: 15px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+/* ================= EMPTY ================= */
+
+.empty {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--muted);
+}
+
+.empty-icon {
+  font-size: 50px;
+  margin-bottom: 10px;
+}
+
+/* ================= TOAST ================= */
+
+.toast {
+  position: fixed;
+  left: 15px;
+  right: 15px;
+  bottom: 85px;
+  background: #202124;
+  color: #fff;
+  padding: 13px 15px;
+  border-radius: 13px;
+  text-align: center;
+  z-index: 200;
+  opacity: 0;
+  transform: translateY(15px);
+  pointer-events: none;
+  transition: .25s;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ================= RTL / LTR ================= */
+
+html[dir="ltr"] body {
+  direction: ltr;
+}
+
+html[dir="ltr"] .search-box input {
+  padding: 15px 15px 15px 45px;
+}
+
+html[dir="ltr"] .search-box span {
+  left: 15px;
+  right: auto;
+}
+
+html[dir="ltr"] .badge {
+  left: 30%;
+  right: auto;
+}
+
+@media (min-width: 700px) {
+  .modal {
+    align-items: center;
+  }
+
+  .modal-box {
+    border-radius: 25px;
+  }
+
+  .food-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= SPLASH ================= -->
+  <section id="splash" class="screen splash-screen">
+    <div class="splash-logo">وص</div>
+    <h1>وصلي</h1>
+    <p data-i18n="tagline">توصيل الطعام إلى بابك</p>
+  </section>
+
+  <!-- ================= LOGIN ================= -->
+  <section id="loginScreen" class="screen login-screen" hidden>
+
+    <div class="brand">
+      <div class="brand-logo">وص</div>
+      <h1>وصلي</h1>
+      <p data-i18n="tagline">توصيل الطعام إلى بابك</p>
+    </div>
+
+    <div class="language-switch">
+      <button type="button" id="langAr" class="lang-btn active">العربية</button>
+      <button type="button" id="langFr" class="lang-btn">Français</button>
+    </div>
+
+    <div class="login-card">
+
+      <h2 data-i18n="welcome">مرحباً بك</h2>
+      <p class="muted" data-i18n="chooseRole">اختر نوع الحساب</p>
+
+      <div class="role-grid">
+
+        <button type="button" class="role-card active" data-role="client">
+          <span class="role-icon">👤</span>
+          <strong data-i18n="client">زبون</strong>
+          <small data-i18n="clientHint">اطلب طعامك</small>
+        </button>
+
+        <button type="button" class="role-card" data-role="seller">
+          <span class="role-icon">🏪</span>
+          <strong data-i18n="seller">مطعم / بائع</strong>
+          <small data-i18n="sellerHint">أدر مطعمك وطلباتك</small>
+        </button>
+
+        <button type="button" class="role-card" data-role="driver">
+          <span class="role-icon">🚴</span>
+          <strong data-i18n="driver">ديليفري</strong>
+          <small data-i18n="driverHint">وصل الطلبات</small>
+        </button>
+
+      </div>
+
+      <form id="loginForm">
+
+        <div class="field">
+          <label data-i18n="fullName">الاسم الكامل</label>
+          <input id="loginName" type="text" autocomplete="name"
+                 data-placeholder-ar="اكتب اسمك الكامل"
+                 data-placeholder-fr="Votre nom complet"
+                 placeholder="اكتب اسمك الكامل">
+        </div>
+
+        <div class="field">
+          <label data-i18n="phone">رقم الهاتف</label>
+          <input id="loginPhone" type="tel" inputmode="tel"
+                 data-placeholder-ar="05xxxxxxxx"
+                 data-placeholder-fr="05xxxxxxxx"
+                 placeholder="05xxxxxxxx">
+        </div>
+
+        <div id="restaurantField" class="field" hidden>
+          <label data-i18n="restaurantName">اسم المطعم</label>
+          <input id="loginRestaurant" type="text"
+                 data-placeholder-ar="مثال: مطعم بوسعادة"
+                 data-placeholder-fr="Ex: Restaurant Boussaada"
+                 placeholder="مثال: مطعم بوسعادة">
+        </div>
+
+        <div id="wilayaField" class="field">
+          <label data-i18n="wilaya">الولاية</label>
+          <select id="loginWilaya"></select>
+        </div>
+
+        <div id="addressField" class="field">
+          <label data-i18n="address">عنوان التوصيل</label>
+          <textarea id="loginAddress"
+                    data-placeholder-ar="الحي، الشارع، رقم المنزل..."
+                    data-placeholder-fr="Quartier, rue, numéro..."
+                    placeholder="الحي، الشارع، رقم المنزل..."></textarea>
+        </div>
+
+        <button id="loginSubmitBtn" class="primary-btn full" type="submit">
+          <span data-i18n="enterApp">دخول إلى وصلي</span>
+        </button>
+
+      </form>
+
+      <p class="demo-note">
+        <span data-i18n="demoNote">نسخة تجريبية: البيانات محفوظة على هذا الجهاز.</span>
+      </p>
+
+    </div>
+  </section>
+
+  <!-- ================= CUSTOMER APP ================= -->
+  <section id="clientApp" class="app-screen" hidden>
+
+    <header class="topbar">
+      <div>
+        <small data-i18n="deliveryTo">التوصيل إلى</small>
+        <button type="button" id="clientWilayaBtn" class="location-btn">
+          📍 <span id="clientWilayaText"></span>
+        </button>
+      </div>
+
+      <button type="button" class="icon-btn" data-logout title="Logout">
+        🚪
+      </button>
+    </header>
+
+    <main id="clientContent" class="main-content"></main>
+
+    <nav class="bottom-nav">
+      <button type="button" class="nav-btn active" data-client-page="home">
+        <span>🏠</span>
+        <small data-i18n="home">الرئيسية</small>
+      </button>
+
+      <button type="button" class="nav-btn" data-client-page="cart">
+        <span>🛒</span>
+        <small data-i18n="cart">السلة</small>
+        <b id="cartBadge" class="badge" hidden>0</b>
+      </button>
+
+      <button type="button" class="nav-btn" data-client-page="orders">
+        <span>📦</span>
+        <small data-i18n="orders">طلباتي</small>
+      </button>
+
+      <button type="button" class="nav-btn" data-client-page="profile">
+        <span>👤</span>
+        <small data-i18n="profile">حسابي</small>
+      </button>
+    </nav>
+
+  </section>
+
+  <!-- ================= SELLER APP ================= -->
+  <section id="sellerApp" class="app-screen" hidden>
+
+    <header class="dashboard-header">
+      <div>
+        <small data-i18n="sellerPanel">لوحة المطعم</small>
+        <h2 id="sellerRestaurantTitle">وصلي</h2>
+      </div>
+
+      <button type="button" class="logout-btn" data-logout>
+        🚪 <span data-i18n="logout">تسجيل الخروج</span>
+      </button>
+    </header>
+
+    <div class="dashboard-tabs">
+      <button type="button" class="dash-tab active" data-seller-tab="orders">
+        📦 <span data-i18n="orders">الطلبات</span>
+      </button>
+
+      <button type="button" class="dash-tab" data-seller-tab="foods">
+        🍔 <span data-i18n="foods">الأطعمة</span>
+      </button>
+    </div>
+
+    <main id="sellerContent" class="dashboard-content"></main>
+
+  </section>
+
+  <!-- ================= DRIVER APP ================= -->
+  <section id="driverApp" class="app-screen" hidden>
+
+    <header class="dashboard-header">
+      <div>
+        <small data-i18n="driverPanel">لوحة الديليفري</small>
+        <h2 id="driverTitle">وصلي</h2>
+      </div>
+
+      <button type="button" class="logout-btn" data-logout>
+        🚪 <span data-i18n="logout">تسجيل الخروج</span>
+      </button>
+    </header>
+
+    <main id="driverContent" class="dashboard-content"></main>
+
+  </section>
+
+  <!-- ================= FOOD MODAL ================= -->
+  <div id="foodModal" class="modal" hidden>
+    <div class="modal-box">
+
+      <div class="modal-head">
+        <h3 id="foodModalTitle" data-i18n="addFood">إضافة طعام</h3>
+        <button type="button" class="close-btn" data-close-modal="foodModal">×</button>
+      </div>
+
+      <form id="foodForm">
+
+        <input id="foodId" type="hidden">
+
+        <div class="field">
+          <label data-i18n="foodName">اسم الطعام</label>
+          <input id="foodName" required>
+        </div>
+
+        <div class="field">
+          <label data-i18n="price">السعر</label>
+          <input id="foodPrice" type="number" min="1" step="0.01" required>
+        </div>
+
+        <div class="field">
+          <label data-i18n="category">التصنيف</label>
+          <select id="foodCategory">
+            <option value="pizza" data-i18n="pizza">بيتزا</option>
+            <option value="burger" data-i18n="burger">برغر</option>
+            <option value="chicken" data-i18n="chicken">دجاج</option>
+            <option value="sandwich" data-i18n="sandwich">ساندويتش</option>
+            <option value="other" data-i18n="other">أخرى</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label data-i18n="description">الوصف</label>
+          <textarea id="foodDescription"></textarea>
+        </div>
+
+        <div class="field">
+          <label data-i18n="image">رابط الصورة</label>
+          <input id="foodImage" type="url"
+                 placeholder="https://...">
+        </div>
+
+        <button id="foodSubmitBtn" class="primary-btn full" type="submit">
+          <span data-i18n="save">حفظ</span>
+        </button>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ================= WILAYA MODAL ================= -->
+  <div id="wilayaModal" class="modal" hidden>
+    <div class="modal-box">
+
+      <div class="modal-head">
+        <h3 data-i18n="changeWilaya">تغيير الولاية</h3>
+        <button type="button" class="close-btn" data-close-modal="wilayaModal">×</button>
+      </div>
+
+      <div class="field">
+        <label data-i18n="wilaya">الولاية</label>
+        <select id="changeWilayaSelect"></select>
+      </div>
+
+      <button type="button" id="saveWilayaBtn" class="primary-btn full">
+        <span data-i18n="save">حفظ</span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ================= TOAST ================= -->
+  <div id="toast" class="toast"></div>
+
+</div>
+<!-- Firebase SDK (compat build - simple <script> usage, no build tools needed) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* =========================================================
+   وصلي - JAVASCRIPT 1/2
+   Core / Database / Login / Language
+   ========================================================= */
+
+"use strict";
+
+/* ================= HELPERS ================= */
+
+const $ = function(selector) {
+  return document.querySelector(selector);
+};
+
+const $$ = function(selector) {
+  return Array.from(document.querySelectorAll(selector));
+};
+
+const STORAGE_KEY = "wasli_final_v5";
+
+/* ================= SAFE STORAGE =================
+   بعض بيئات المعاينة (مثل WebView داخل تطبيقات المحادثة)
+   تمنع الوصول إلى localStorage. هذه الطبقة تحاول استخدام
+   localStorage، وإذا فشلت تستخدم الذاكرة المؤقتة بدلاً منها
+   حتى لا يتوقف التطبيق عن العمل.
+*/
+
+const memoryStore = {};
+
+const safeStorage = {
+  getItem: function(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      return Object.prototype.hasOwnProperty.call(memoryStore, key)
+        ? memoryStore[key]
+        : null;
+    }
+  },
+  setItem: function(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      memoryStore[key] = value;
+    }
+  },
+  removeItem: function(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      delete memoryStore[key];
+    }
+  }
+};
+
+let lang = safeStorage.getItem("wasli_lang") || "ar";
+
+/* ================= GLOBAL ERROR CATCH =================
+   لإظهار أي خطأ برمجي كرسالة مرئية بدل أن يفشل التطبيق
+   بصمت (مفيد جداً في بيئات المعاينة المقيدة).
+*/
+window.addEventListener("error", function(event) {
+  try {
+    const el = document.getElementById("toast");
+    if (el) {
+      el.textContent = "خطأ: " + (event.message || "غير معروف") +
+        " (سطر " + (event.lineno || "?") + ")";
+      el.classList.add("show");
+    }
+  } catch (e) {}
+});
+let role = "client";
+let user = null;
+let clientPage = "home";
+let clientCategory = "all";
+let clientSearch = "";
+let sellerTab = "orders";
+let editingFoodId = null;
+let toastTimer = null;
+
+/* ================= WILAYAS ================= */
+
+const WILAYAS = [
+  ["01", "أدرار", "Adrar"],
+  ["02", "الشلف", "Chlef"],
+  ["03", "الأغواط", "Laghouat"],
+  ["04", "أم البواقي", "Oum El Bouaghi"],
+  ["05", "باتنة", "Batna"],
+  ["06", "بجاية", "Béjaïa"],
+  ["07", "بسكرة", "Biskra"],
+  ["08", "بشار", "Béchar"],
+  ["09", "البليدة", "Blida"],
+  ["10", "البويرة", "Bouira"],
+  ["11", "تمنراست", "Tamanrasset"],
+  ["12", "تبسة", "Tébessa"],
+  ["13", "تلمسان", "Tlemcen"],
+  ["14", "تيارت", "Tiaret"],
+  ["15", "تيزي وزو", "Tizi Ouzou"],
+  ["16", "الجزائر", "Alger"],
+  ["17", "الجلفة", "Djelfa"],
+  ["18", "جيجل", "Jijel"],
+  ["19", "سطيف", "Sétif"],
+  ["20", "سعيدة", "Saïda"],
+  ["21", "سكيكدة", "Skikda"],
+  ["22", "سيدي بلعباس", "Sidi Bel Abbès"],
+  ["23", "عنابة", "Annaba"],
+  ["24", "قالمة", "Guelma"],
+  ["25", "قسنطينة", "Constantine"],
+  ["26", "المدية", "Médéa"],
+  ["27", "مستغانم", "Mostaganem"],
+  ["28", "المسيلة", "M'Sila"],
+  ["29", "معسكر", "Mascara"],
+  ["30", "ورقلة", "Ouargla"],
+  ["31", "وهران", "Oran"],
+  ["32", "البيض", "El Bayadh"],
+  ["33", "إليزي", "Illizi"],
+  ["34", "برج بوعريريج", "Bordj Bou Arréridj"],
+  ["35", "بومرداس", "Boumerdès"],
+  ["36", "الطارف", "El Tarf"],
+  ["37", "تندوف", "Tindouf"],
+  ["38", "تيسمسيلت", "Tissemsilt"],
+  ["39", "الوادي", "El Oued"],
+  ["40", "خنشلة", "Khenchela"],
+  ["41", "سوق أهراس", "Souk Ahras"],
+  ["42", "تيبازة", "Tipaza"],
+  ["43", "ميلة", "Mila"],
+  ["44", "عين الدفلى", "Aïn Defla"],
+  ["45", "النعامة", "Naâma"],
+  ["46", "عين تموشنت", "Aïn Témouchent"],
+  ["47", "غرداية", "Ghardaïa"],
+  ["48", "غليزان", "Relizane"],
+  ["49", "تيميمون", "Timimoun"],
+  ["50", "برج باجي مختار", "Bordj Badji Mokhtar"],
+  ["51", "أولاد جلال", "Ouled Djellal"],
+  ["52", "بني عباس", "Béni Abbès"],
+  ["53", "عين صالح", "In Salah"],
+  ["54", "عين قزام", "In Guezzam"],
+  ["55", "تقرت", "Touggourt"],
+  ["56", "جانت", "Djanet"],
+  ["57", "المغير", "El M'Ghair"],
+  ["58", "المنيعة", "El Meniaa"],
+  ["59", "آفلو", "Aflou"],
+  ["60", "بريكة", "Barika"],
+  ["61", "القنطرة", "El Kantara"],
+  ["62", "بوسعادة", "Bou Saâda"],
+  ["63", "قصر الشلالة", "Ksar Chellala"],
+  ["64", "مسعد", "Messaad"],
+  ["65", "عين وسارة", "Aïn Oussera"],
+  ["66", "قصر البخاري", "Ksar El Boukhari"],
+  ["67", "بئر العاتر", "Bir El Ater"],
+  ["68", "العريشة", "El Aricha"],
+  ["69", "سيدي عيسى", "Sidi Aïssa"]
+];
+
+/* ================= TRANSLATIONS ================= */
+
+const I = {
+  ar: {
+    tagline: "توصيل الطعام إلى بابك",
+    welcome: "مرحباً بك",
+    chooseRole: "اختر نوع الحساب",
+    client: "زبون",
+    seller: "مطعم / بائع",
+    driver: "ديليفري",
+    clientHint: "اطلب طعامك",
+    sellerHint: "أدر مطعمك وطلباتك",
+    driverHint: "وصل الطلبات",
+    fullName: "الاسم الكامل",
+    phone: "رقم الهاتف",
+    restaurantName: "اسم المطعم",
+    wilaya: "الولاية",
+    address: "عنوان التوصيل",
+    enterApp: "دخول إلى وصلي",
+    demoNote: "نسخة تجريبية: البيانات محفوظة على هذا الجهاز.",
+    deliveryTo: "التوصيل إلى",
+    home: "الرئيسية",
+    cart: "السلة",
+    orders: "طلباتي",
+    profile: "حسابي",
+    restaurants: "المطاعم",
+    search: "ابحث عن طعام أو مطعم...",
+    all: "الكل",
+    pizza: "بيتزا",
+    burger: "برغر",
+    chicken: "دجاج",
+    sandwich: "ساندويتش",
+    other: "أخرى",
+    add: "إضافة",
+    total: "المجموع",
+    note: "ملاحظة للطلب",
+    checkout: "تأكيد الطلب",
+    emptyCart: "السلة فارغة",
+    emptyOrders: "لا توجد طلبات بعد",
+    noRestaurants: "لا توجد مطاعم في هذه الولاية حالياً.",
+    noFoods: "لا توجد أطعمة بعد.",
+    waiting: "في انتظار المطعم",
+    confirmed: "تم تأكيد الطلب",
+    rejected: "تم رفض الطلب",
+    onWay: "الطلب في الطريق",
+    done: "تم التسليم",
+    driverName: "اسم الديليفري",
+    rateFood: "تقييم الطعام",
+    rateDriver: "تقييم الديليفري",
+    save: "حفظ",
+    logout: "تسجيل الخروج",
+    sellerPanel: "لوحة المطعم",
+    foods: "الأطعمة",
+    addFood: "إضافة طعام",
+    foodName: "اسم الطعام",
+    price: "السعر",
+    category: "التصنيف",
+    description: "الوصف",
+    image: "رابط الصورة",
+    edit: "تعديل",
+    delete: "حذف",
+    deleteConfirm: "هل تريد حذف هذا الطعام؟",
+    sellerOrders: "طلبات المطعم",
+    accept: "قبول",
+    reject: "رفض",
+    driverPanel: "لوحة الديليفري",
+    deliveryRequests: "طلبات التوصيل",
+    available: "متاح لاستقبال الطلبات",
+    offline: "غير متاح",
+    complete: "تم التسليم",
+    customer: "الزبون",
+    deliveryAddress: "عنوان التوصيل",
+    orderNote: "ملاحظة",
+    changeWilaya: "تغيير الولاية",
+    empty: "لا توجد بيانات",
+    saved: "تم الحفظ",
+    sent: "تم إرسال الطلب",
+    cartOther: "لا يمكنك جمع أطعمة من مطاعم مختلفة في نفس السلة.",
+    loginRequired: "يرجى إدخال الاسم ورقم الهاتف والولاية.",
+    customerAddressRequired: "يرجى إدخال عنوان التوصيل.",
+    restaurantRequired: "يرجى إدخال اسم المطعم.",
+    foodSaved: "تم حفظ الطعام.",
+    foodDeleted: "تم حذف الطعام.",
+    orderAccepted: "تم قبول الطلب.",
+    orderRejected: "تم رفض الطلب.",
+    driverAccepted: "تم قبول التوصيل.",
+    driverRejected: "تم رفض التوصيل.",
+    deliveryDone: "تم إنهاء التوصيل.",
+    ratingSaved: "تم حفظ التقييم.",
+    online: "متصل",
+    offlineShort: "غير متصل",
+    currentOrders: "الطلبات الحالية",
+    myRestaurant: "مطعمي",
+    orderNumber: "رقم الطلب",
+    restaurant: "المطعم",
+    phoneLabel: "الهاتف",
+    logoutQuestion: "تم تسجيل الخروج."
+  },
+
+  fr: {
+    tagline: "Livraison de repas à votre porte",
+    welcome: "Bienvenue",
+    chooseRole: "Choisissez votre type de compte",
+    client: "Client",
+    seller: "Restaurant / Vendeur",
+    driver: "Livreur",
+    clientHint: "Commandez votre repas",
+    sellerHint: "Gérez votre restaurant",
+    driverHint: "Livrez les commandes",
+    fullName: "Nom complet",
+    phone: "Numéro de téléphone",
+    restaurantName: "Nom du restaurant",
+    wilaya: "Wilaya",
+    address: "Adresse de livraison",
+    enterApp: "Entrer dans Wasli",
+    demoNote: "Démo : les données sont sauvegardées sur cet appareil.",
+    deliveryTo: "Livraison à",
+    home: "Accueil",
+    cart: "Panier",
+    orders: "Mes commandes",
+    profile: "Mon compte",
+    restaurants: "Restaurants",
+    search: "Rechercher un plat ou restaurant...",
+    all: "Tout",
+    pizza: "Pizza",
+    burger: "Burger",
+    chicken: "Poulet",
+    sandwich: "Sandwich",
+    other: "Autre",
+    add: "Ajouter",
+    total: "Total",
+    note: "Note de commande",
+    checkout: "Confirmer la commande",
+    emptyCart: "Le panier est vide",
+    emptyOrders: "Aucune commande",
+    noRestaurants: "Aucun restaurant dans cette wilaya pour le moment.",
+    noFoods: "Aucun plat disponible.",
+    waiting: "En attente du restaurant",
+    confirmed: "Commande confirmée",
+    rejected: "Commande refusée",
+    onWay: "Commande en route",
+    done: "Livrée",
+    driverName: "Nom du livreur",
+    rateFood: "Évaluer le repas",
+    rateDriver: "Évaluer le livreur",
+    save: "Enregistrer",
+    logout: "Déconnexion",
+    sellerPanel: "Tableau du restaurant",
+    foods: "Plats",
+    addFood: "Ajouter un plat",
+    foodName: "Nom du plat",
+    price: "Prix",
+    category: "Catégorie",
+    description: "Description",
+    image: "URL de l'image",
+    edit: "Modifier",
+    delete: "Supprimer",
+    deleteConfirm: "Voulez-vous supprimer ce plat ?",
+    sellerOrders: "Commandes du restaurant",
+    accept: "Accepter",
+    reject: "Refuser",
+    driverPanel: "Tableau du livreur",
+    deliveryRequests: "Demandes de livraison",
+    available: "Disponible pour les commandes",
+    offline: "Indisponible",
+    complete: "Livrée",
+    customer: "Client",
+    deliveryAddress: "Adresse de livraison",
+    orderNote: "Note",
+    changeWilaya: "Changer de wilaya",
+    empty: "Aucune donnée",
+    saved: "Enregistré",
+    sent: "Commande envoyée",
+    cartOther: "Vous ne pouvez pas mélanger plusieurs restaurants dans le même panier.",
+    loginRequired: "Veuillez saisir le nom, le téléphone et la wilaya.",
+    customerAddressRequired: "Veuillez saisir l'adresse de livraison.",
+    restaurantRequired: "Veuillez saisir le nom du restaurant.",
+    foodSaved: "Plat enregistré.",
+    foodDeleted: "Plat supprimé.",
+    orderAccepted: "Commande acceptée.",
+    orderRejected: "Commande refusée.",
+    driverAccepted: "Livraison acceptée.",
+    driverRejected: "Livraison refusée.",
+    deliveryDone: "Livraison terminée.",
+    ratingSaved: "Évaluation enregistrée.",
+    online: "En ligne",
+    offlineShort: "Hors ligne",
+    currentOrders: "Commandes actuelles",
+    myRestaurant: "Mon restaurant",
+    orderNumber: "Commande",
+    restaurant: "Restaurant",
+    phoneLabel: "Téléphone",
+    logoutQuestion: "Vous êtes déconnecté."
+  }
+};
+
+/* ================= DATABASE (Firebase Firestore) =================
+
+   هذا القسم يستبدل التخزين المحلي (localStorage) بقاعدة بيانات
+   سحابية حقيقية على Firebase Firestore، حتى يتشارك الزبون
+   والمطعم والديليفري نفس البيانات لحظياً عبر أجهزة مختلفة.
+
+   ⚠️ مهم: يجب استبدال القيم داخل firebaseConfig ببيانات مشروعك
+   الخاص من console.firebase.google.com (مجاني بالكامل).
+   بدون ذلك لن يعمل هذا القسم إطلاقاً.
+*/
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCj7Ci2j4aiWamaw-sHU0E0arKPxO1ZZeg",
+  authDomain: "wasli-72a2c.firebaseapp.com",
+  projectId: "wasli-72a2c",
+  storageBucket: "wasli-72a2c.firebasestorage.app",
+  messagingSenderId: "795666823382",
+  appId: "1:795666823382:web:9674ccd32f3efdb274f177"
+};
+
+let fsdb = null;
+let firebaseReady = false;
+
+function initFirebase() {
+  try {
+    firebase.initializeApp(firebaseConfig);
+    fsdb = firebase.firestore();
+    firebaseReady = true;
+  } catch (error) {
+    firebaseReady = false;
+    toast(
+      lang === "ar"
+        ? "لم يتم ضبط Firebase بعد. راجع الخطوات المرسلة لك."
+        : "Firebase n'est pas encore configuré."
+    );
+  }
+}
+
+/* الذاكرة المحلية التي تُملأ تلقائياً وتبقى محدّثة لحظياً
+   عبر مستمعي Firestore (onSnapshot). كل دوال renderXxx
+   تبقى كما هي وتقرأ من db.restaurants / db.foods / db.orders
+   دون أي تعديل عليها. */
+let db = {
+  users: [],
+  restaurants: [],
+  foods: [],
+  orders: [],
+  carts: {}
+};
+
+function mapSnapshot(snapshot) {
+  return snapshot.docs.map(function(docSnap) {
+    return Object.assign({ id: docSnap.id }, docSnap.data());
+  });
+}
+
+function startRealtimeSync() {
+  if (!firebaseReady) return;
+
+  fsdb.collection("restaurants").onSnapshot(function(snapshot) {
+    db.restaurants = mapSnapshot(snapshot);
+    if (user) renderCurrentApp();
+  }, function(error) {
+    toast("Firestore (restaurants): " + error.message);
+  });
+
+  fsdb.collection("foods").onSnapshot(function(snapshot) {
+    db.foods = mapSnapshot(snapshot);
+    if (user) renderCurrentApp();
+  }, function(error) {
+    toast("Firestore (foods): " + error.message);
+  });
+
+  fsdb.collection("orders").onSnapshot(function(snapshot) {
+    db.orders = mapSnapshot(snapshot).sort(function(a, b) {
+      return (b.createdAtMs || 0) - (a.createdAtMs || 0);
+    });
+    if (user) renderCurrentApp();
+  }, function(error) {
+    toast("Firestore (orders): " + error.message);
+  });
+}
+
+/* السلة تبقى محلية على كل جهاز (لا حاجة لمشاركتها بين الأدوار) */
+
+function loadCarts() {
+  try {
+    const raw = safeStorage.getItem("wasli_carts");
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveCarts() {
+  safeStorage.setItem("wasli_carts", JSON.stringify(db.carts));
+}
+
+db.carts = loadCarts();
+
+/* ================= BASIC FUNCTIONS ================= */
+
+function uid(prefix) {
+  return prefix + "_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+}
+
+function t(key) {
+  return I[lang][key] || I.ar[key] || key;
+}
+
+function money(value) {
+  return Number(value || 0).toFixed(2) + " DA";
+}
+
+function esc(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function getWilaya(code) {
+  const item = WILAYAS.find(function(w) {
+    return w[0] === code;
+  });
+
+  if (!item) return code || "";
+
+  return lang === "ar" ? item[1] : item[2];
+}
+
+function getFoodName(food) {
+  return lang === "ar" ? food.nameAr : food.nameFr;
+}
+
+function getFoodDescription(food) {
+  return lang === "ar" ? food.descriptionAr : food.descriptionFr;
+}
+
+function showOnly(id) {
+  [
+    "#splash",
+    "#loginScreen",
+    "#clientApp",
+    "#sellerApp",
+    "#driverApp"
+  ].forEach(function(selector) {
+    const el = $(selector);
+    if (el) el.hidden = true;
+  });
+
+  const target = $("#" + id);
+  if (target) target.hidden = false;
+}
+
+function toast(message) {
+  const el = $("#toast");
+  if (!el) return;
+
+  el.textContent = message;
+  el.classList.add("show");
+
+  clearTimeout(toastTimer);
+
+  toastTimer = setTimeout(function() {
+    el.classList.remove("show");
+  }, 2500);
+}
+
+/* ================= LANGUAGE ================= */
+
+function fillWilayaSelect(select, selected) {
+  if (!select) return;
+
+  select.innerHTML = WILAYAS.map(function(w) {
+    const label = lang === "ar"
+      ? w[0] + " - " + w[1]
+      : w[0] + " - " + w[2];
+
+    return '<option value="' + esc(w[0]) + '"' +
+      (w[0] === selected ? " selected" : "") +
+      ">" + esc(label) + "</option>";
+  }).join("");
+}
+
+function translatePage() {
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+
+  $$("[data-i18n]").forEach(function(el) {
+    const key = el.getAttribute("data-i18n");
+
+    if (I[lang][key]) {
+      el.textContent = I[lang][key];
+    }
+  });
+
+  $$("[data-placeholder-ar]").forEach(function(el) {
+    el.placeholder = lang === "ar"
+      ? el.getAttribute("data-placeholder-ar")
+      : el.getAttribute("data-placeholder-fr");
+  });
+
+  $("#langAr").classList.toggle("active", lang === "ar");
+  $("#langFr").classList.toggle("active", lang === "fr");
+
+  fillWilayaSelect($("#loginWilaya"), $("#loginWilaya").value || "28");
+
+  if ($("#changeWilayaSelect")) {
+    fillWilayaSelect(
+      $("#changeWilayaSelect"),
+      user ? user.wilaya : "28"
+    );
+  }
+
+  if (user) {
+    renderCurrentApp();
+  }
+}
+
+/* ================= ROLE ================= */
+
+function setRole(newRole) {
+  role = newRole;
+
+  $$(".role-card").forEach(function(card) {
+    card.classList.toggle(
+      "active",
+      card.getAttribute("data-role") === role
+    );
+  });
+
+  const restaurantField = $("#restaurantField");
+  const addressField = $("#addressField");
+
+  restaurantField.hidden = role !== "seller";
+  addressField.hidden = role !== "client";
+
+  if (role === "driver") {
+    $("#loginName").placeholder =
+      lang === "ar" ? "اسم الديليفري" : "Nom du livreur";
+  } else if (role === "seller") {
+    $("#loginName").placeholder =
+      lang === "ar" ? "اسم صاحب المطعم" : "Nom du responsable";
+  } else {
+    $("#loginName").placeholder =
+      lang === "ar" ? "اكتب اسمك الكامل" : "Votre nom complet";
+  }
+}
+
+/* ================= LOGIN ================= */
+
+async function findUserRemote(phone, selectedRole) {
+  const snap = await fsdb.collection("users")
+    .where("phone", "==", phone)
+    .where("role", "==", selectedRole)
+    .limit(1)
+    .get();
+
+  if (snap.empty) return null;
+
+  const docSnap = snap.docs[0];
+  return Object.assign({ id: docSnap.id }, docSnap.data());
+}
+
+function login() {
+  loginInner().catch(function(error) {
+    toast("خطأ أثناء الدخول: " + (error && error.message ? error.message : error));
+  });
+}
+
+async function loginInner() {
+
+  if (!firebaseReady) {
+    toast(
+      lang === "ar"
+        ? "لم يتم ضبط Firebase بعد. راجع الخطوات المرسلة لك."
+        : "Firebase n'est pas encore configuré."
+    );
+    return;
+  }
+
+  const name = $("#loginName").value.trim();
+  const phone = $("#loginPhone").value.trim();
+  const wilaya = $("#loginWilaya").value;
+  const address = $("#loginAddress").value.trim();
+  const restaurantName = $("#loginRestaurant").value.trim();
+
+  if (!name || !phone || !wilaya) {
+    toast(t("loginRequired"));
+    return;
+  }
+
+  if (role === "client" && !address) {
+    toast(t("customerAddressRequired"));
+    return;
+  }
+
+  if (role === "seller" && !restaurantName) {
+    toast(t("restaurantRequired"));
+    return;
+  }
+
+  const existing = await findUserRemote(phone, role);
+
+  if (existing) {
+
+    const updates = {
+      name: name,
+      wilaya: wilaya
+    };
+
+    if (role === "client") {
+      updates.address = address;
+    }
+
+    if (role === "seller") {
+      updates.restaurantName = restaurantName;
+    }
+
+    await fsdb.collection("users").doc(existing.id).update(updates);
+
+    user = Object.assign({}, existing, updates);
+
+    if (role === "seller") {
+      const restSnap = await fsdb.collection("restaurants")
+        .where("ownerId", "==", user.id)
+        .limit(1)
+        .get();
+
+      if (!restSnap.empty) {
+        await restSnap.docs[0].ref.update({
+          name: restaurantName,
+          wilaya: wilaya
+        });
+      } else {
+        await fsdb.collection("restaurants").add({
+          ownerId: user.id,
+          name: restaurantName,
+          wilaya: wilaya
+        });
+      }
+    }
+
+  } else {
+
+    const newUserData = {
+      role: role,
+      name: name,
+      phone: phone,
+      wilaya: wilaya
+    };
+
+    if (role === "client") {
+      newUserData.address = address;
+    }
+
+    if (role === "seller") {
+      newUserData.restaurantName = restaurantName;
+    }
+
+    if (role === "driver") {
+      newUserData.online = false;
+    }
+
+    const newUserRef = await fsdb.collection("users").add(newUserData);
+
+    user = Object.assign({ id: newUserRef.id }, newUserData);
+
+    if (role === "seller") {
+      await fsdb.collection("restaurants").add({
+        ownerId: user.id,
+        name: restaurantName,
+        wilaya: wilaya
+      });
+    }
+  }
+
+  safeStorage.setItem(
+    "wasli_session",
+    JSON.stringify({
+      userId: user.id,
+      role: user.role
+    })
+  );
+
+  renderCurrentApp();
+  toast(lang === "ar" ? "تم تسجيل الدخول بنجاح" : "Connexion réussie");
+}
+
+/* ================= LOGOUT ================= */
+
+function logout() {
+
+  user = null;
+  role = "client";
+
+  clientPage = "home";
+  clientCategory = "all";
+  clientSearch = "";
+  sellerTab = "orders";
+  editingFoodId = null;
+
+  safeStorage.removeItem("wasli_session");
+
+  showOnly("loginScreen");
+
+  $("#loginForm").reset();
+
+  setRole("client");
+
+  fillWilayaSelect($("#loginWilaya"), "28");
+
+  translatePage();
+
+  toast(t("logoutQuestion"));
+}
+
+/* ================= SESSION ================= */
+
+async function restoreSession() {
+  try {
+    const raw = safeStorage.getItem("wasli_session");
+
+    if (!raw) {
+      showOnly("loginScreen");
+      return;
+    }
+
+    if (!firebaseReady) {
+      showOnly("loginScreen");
+      return;
+    }
+
+    const session = JSON.parse(raw);
+
+    const docSnap = await fsdb.collection("users").doc(session.userId).get();
+
+    if (!docSnap.exists || docSnap.data().role !== session.role) {
+      safeStorage.removeItem("wasli_session");
+      showOnly("loginScreen");
+      return;
+    }
+
+    user = Object.assign({ id: docSnap.id }, docSnap.data());
+    role = user.role;
+
+    renderCurrentApp();
+
+  } catch (error) {
+    safeStorage.removeItem("wasli_session");
+    showOnly("loginScreen");
+  }
+}
+
+/* ================= RESTAURANT ================= */
+
+function getSellerRestaurant() {
+  if (!user || user.role !== "seller") return null;
+
+  return db.restaurants.find(function(r) {
+    return r.ownerId === user.id;
+  }) || null;
+}
+
+/* ================= STATUS ================= */
+
+function statusText(status) {
+  return t(status);
+}
+
+/* ================= CART ================= */
+
+function getCart() {
+  if (!user || user.role !== "client") return [];
+
+  return db.carts[user.id] || [];
+}
+
+function setCart(cart) {
+  if (!user || user.role !== "client") return;
+
+  db.carts[user.id] = cart;
+  saveCarts();
+}
+
+function cartCount() {
+  return getCart().reduce(function(sum, item) {
+    return sum + item.qty;
+  }, 0);
+}
+
+function cartTotal() {
+  let total = 0;
+
+  getCart().forEach(function(item) {
+    total += item.price * item.qty;
+  });
+
+  return total;
+}
+
+/* ================= APP ROUTER (was missing) ================= */
+
+function renderCurrentApp() {
+  try {
+    if (!user) {
+      showOnly("loginScreen");
+      return;
+    }
+
+    if (user.role === "client") {
+      showOnly("clientApp");
+      renderClient();
+    } else if (user.role === "seller") {
+      showOnly("sellerApp");
+      renderSeller();
+    } else if (user.role === "driver") {
+      showOnly("driverApp");
+      renderDriver();
+    }
+  } catch (error) {
+    toast("خطأ أثناء عرض الواجهة: " + (error && error.message ? error.message : error));
+  }
+}
+/* =========================================================
+   وصلي - JAVASCRIPT 2/2
+   Customer / Seller / Driver / Orders / Events
+   ========================================================= */
+
+/* ================= CUSTOMER ================= */
+
+function renderClient() {
+
+  $("#clientWilayaText").textContent = getWilaya(user.wilaya);
+
+  updateCartBadge();
+
+  $$(".nav-btn").forEach(function(btn) {
+    btn.classList.toggle(
+      "active",
+      btn.getAttribute("data-client-page") === clientPage
+    );
+  });
+
+  if (clientPage === "home") {
+    renderClientHome();
+  } else if (clientPage === "cart") {
+    renderClientCart();
+  } else if (clientPage === "orders") {
+    renderClientOrders();
+  } else if (clientPage === "profile") {
+    renderClientProfile();
+  }
+}
+
+function updateCartBadge() {
+  const badge = $("#cartBadge");
+
+  if (!badge) return;
+
+  const count = cartCount();
+
+  badge.textContent = count;
+  badge.hidden = count === 0;
+}
+
+function renderClientHome() {
+
+  const restaurants = db.restaurants.filter(function(r) {
+    return r.wilaya === user.wilaya;
+  });
+
+  let filteredRestaurants = restaurants;
+
+  if (clientSearch) {
+    const query = clientSearch.toLowerCase();
+
+    filteredRestaurants = restaurants.filter(function(r) {
+
+      const restaurantMatch =
+        r.name.toLowerCase().includes(query);
+
+      const foods = db.foods.filter(function(f) {
+        return f.restaurantId === r.id;
+      });
+
+      const foodMatch = foods.some(function(f) {
+        return (
+          f.nameAr.toLowerCase().includes(query) ||
+          f.nameFr.toLowerCase().includes(query)
+        );
+      });
+
+      return restaurantMatch || foodMatch;
+    });
+  }
+
+  let html = "";
+
+  html += `
+    <div class="hero">
+      <h2>${esc(
+        lang === "ar"
+          ? "أهلاً " + user.name
+          : "Bonjour " + user.name
+      )}</h2>
+      <p>${esc(t("deliveryTo"))}: ${esc(getWilaya(user.wilaya))}</p>
+    </div>
+  `;
+
+  html += `
+    <div class="search-box">
+      <span>🔍</span>
+      <input
+        id="clientSearchInput"
+        value="${esc(clientSearch)}"
+        placeholder="${esc(t("search"))}">
+    </div>
+  `;
+
+  html += `
+    <div class="categories">
+      ${categoryButton("all")}
+      ${categoryButton("pizza")}
+      ${categoryButton("burger")}
+      ${categoryButton("chicken")}
+      ${categoryButton("sandwich")}
+      ${categoryButton("other")}
+    </div>
+  `;
+
+  html += `
+    <div class="section-title">
+      <h3>${esc(t("restaurants"))}</h3>
+      <small>${restaurants.length}</small>
+    </div>
+  `;
+
+  if (!filteredRestaurants.length) {
+
+    html += `
+      <div class="empty">
+        <div class="empty-icon">🏪</div>
+        <p>${esc(t("noRestaurants"))}</p>
+      </div>
+    `;
+
+  } else {
+
+    filteredRestaurants.forEach(function(restaurant) {
+
+      let foods = db.foods.filter(function(food) {
+        return food.restaurantId === restaurant.id;
+      });
+
+      if (clientCategory !== "all") {
+        foods = foods.filter(function(food) {
+          return food.category === clientCategory;
+        });
+      }
+
+      if (clientSearch) {
+        const q = clientSearch.toLowerCase();
+
+        foods = foods.filter(function(food) {
+          return (
+            food.nameAr.toLowerCase().includes(q) ||
+            food.nameFr.toLowerCase().includes(q) ||
+            food.descriptionAr.toLowerCase().includes(q) ||
+            food.descriptionFr.toLowerCase().includes(q)
+          );
+        });
+      }
+
+      html += `
+        <div class="restaurant-card">
+
+          <div class="restaurant-head">
+            <h3>${esc(restaurant.name)}</h3>
+            <small>📍 ${esc(getWilaya(restaurant.wilaya))}</small>
+          </div>
+
+          <div class="food-grid">
+            ${
+              foods.length
+                ? foods.map(renderClientFood).join("")
+                : `<div class="empty"><p>${esc(t("noFoods"))}</p></div>`
+            }
+          </div>
+
+        </div>
+      `;
+    });
+  }
+
+  $("#clientContent").innerHTML = html;
+
+  const searchInput = $("#clientSearchInput");
+
+  if (searchInput) {
+
+    searchInput.addEventListener("input", function(e) {
+      clientSearch = e.target.value;
+      renderClientHome();
+    });
+
+    searchInput.focus();
+
+    try {
+      searchInput.setSelectionRange(
+        searchInput.value.length,
+        searchInput.value.length
+      );
+    } catch (e) {}
+  }
+}
+
+function categoryButton(category) {
+  return `
+    <button
+      type="button"
+      class="category-btn ${clientCategory === category ? "active" : ""}"
+      data-category="${category}">
+      ${esc(t(category))}
+    </button>
+  `;
+}
+
+function renderClientFood(food) {
+
+  return `
+    <div class="food-card">
+
+      <img
+        class="food-image"
+        src="${esc(food.image || "https://via.placeholder.com/500x300?text=Wasli")}"
+        alt="${esc(getFoodName(food))}"
+        onerror="this.src='https://via.placeholder.com/500x300?text=Wasli'">
+
+      <div class="food-body">
+
+        <h4>${esc(getFoodName(food))}</h4>
+
+        <p>${esc(getFoodDescription(food))}</p>
+
+        <div class="price-row">
+          <span class="price">${money(food.price)}</span>
+
+          <button
+            type="button"
+            class="add-btn"
+            data-add-food="${esc(food.id)}">
+            + ${esc(t("add"))}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  `;
+}
+
+/* ================= ADD TO CART ================= */
+
+function addToCart(foodId) {
+
+  const food = db.foods.find(function(f) {
+    return f.id === foodId;
+  });
+
+  if (!food) return;
+
+  const restaurantId = food.restaurantId;
+  const cart = getCart();
+
+  if (
+    cart.length &&
+    cart[0].restaurantId !== restaurantId
+  ) {
+    toast(t("cartOther"));
+    return;
+  }
+
+  const existing = cart.find(function(item) {
+    return item.foodId === foodId;
+  });
+
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({
+      foodId: food.id,
+      restaurantId: restaurantId,
+      nameAr: food.nameAr,
+      nameFr: food.nameFr,
+      price: Number(food.price),
+      qty: 1
+    });
+  }
+
+  setCart(cart);
+  updateCartBadge();
+
+  toast(lang === "ar" ? "تمت الإضافة إلى السلة" : "Ajouté au panier");
+}
+
+/* ================= CUSTOMER CART ================= */
+
+function renderClientCart() {
+
+  const cart = getCart();
+
+  let html = `
+    <div class="section-title">
+      <h3>${esc(t("cart"))}</h3>
+    </div>
+  `;
+
+  if (!cart.length) {
+
+    html += `
+      <div class="empty">
+        <div class="empty-icon">🛒</div>
+        <p>${esc(t("emptyCart"))}</p>
+      </div>
+    `;
+
+    $("#clientContent").innerHTML = html;
+    return;
+  }
+
+  const restaurant = db.restaurants.find(function(r) {
+    return r.id === cart[0].restaurantId;
+  });
+
+  html += `
+    <div class="info-box">
+      🏪 ${esc(restaurant ? restaurant.name : "")}
+    </div>
+  `;
+
+  cart.forEach(function(item, index) {
+
+    html += `
+      <div class="cart-line">
+
+        <div class="cart-line-info">
+          <strong>
+            ${esc(lang === "ar" ? item.nameAr : item.nameFr)}
+          </strong>
+          <div class="price">${money(item.price)}</div>
+        </div>
+
+        <div class="qty-controls">
+
+          <button
+            type="button"
+            class="qty-btn"
+            data-cart-minus="${index}">
+            −
+          </button>
+
+          <strong>${item.qty}</strong>
+
+          <button
+            type="button"
+            class="qty-btn"
+            data-cart-plus="${index}">
+            +
+          </button>
+
+        </div>
+
+      </div>
+    `;
+  });
+
+  html += `
+    <div class="field">
+      <label>${esc(t("note"))}</label>
+      <textarea id="orderNote"
+        placeholder="${esc(
+          lang === "ar"
+            ? "مثال: بدون بصل..."
+            : "Ex : sans oignon..."
+        )}"></textarea>
+    </div>
+
+    <div class="total-box">
+
+      <div class="total-row">
+        <span>${esc(t("total"))}</span>
+        <span class="price">${money(cartTotal())}</span>
+      </div>
+
+      <div class="info-box">
+        📍 ${esc(user.address || "")}<br>
+        📞 ${esc(user.phone || "")}
+      </div>
+
+      <button
+        type="button"
+        id="checkoutBtn"
+        class="primary-btn full"
+        style="margin-top:12px;">
+        ${esc(t("checkout"))}
+      </button>
+
+    </div>
+  `;
+
+  $("#clientContent").innerHTML = html;
+}
+
+/* ================= CHECKOUT ================= */
+
+function checkout() {
+  checkoutInner().catch(function(error) {
+    toast("خطأ أثناء إرسال الطلب: " + (error && error.message ? error.message : error));
+  });
+}
+
+async function checkoutInner() {
+
+  const cart = getCart();
+
+  if (!cart.length) return;
+
+  if (!user.address) {
+    toast(t("customerAddressRequired"));
+    return;
+  }
+
+  const noteElement = $("#orderNote");
+
+  const restaurantId = cart[0].restaurantId;
+
+  const order = {
+    number: String(Date.now()).slice(-8),
+    clientId: user.id,
+    restaurantId: restaurantId,
+    driverId: null,
+    driverName: "",
+    items: cart.map(function(item) {
+      return {
+        foodId: item.foodId,
+        nameAr: item.nameAr,
+        nameFr: item.nameFr,
+        price: item.price,
+        qty: item.qty
+      };
+    }),
+    total: cartTotal(),
+    note: noteElement ? noteElement.value.trim() : "",
+    customerName: user.name,
+    customerPhone: user.phone,
+    customerAddress: user.address,
+    wilaya: user.wilaya,
+    status: "waiting",
+    createdAt: new Date().toISOString(),
+    createdAtMs: Date.now(),
+    foodRating: null,
+    driverRating: null
+  };
+
+  await fsdb.collection("orders").add(order);
+
+  db.carts[user.id] = [];
+  saveCarts();
+
+  clientPage = "orders";
+
+  renderClient();
+
+  toast(t("sent"));
+}
+
+/* ================= CUSTOMER ORDERS ================= */
+
+function renderClientOrders() {
+
+  const orders = db.orders.filter(function(o) {
+    return o.clientId === user.id;
+  });
+
+  let html = `
+    <div class="section-title">
+      <h3>${esc(t("orders"))}</h3>
+      <small>${orders.length}</small>
+    </div>
+  `;
+
+  if (!orders.length) {
+
+    html += `
+      <div class="empty">
+        <div class="empty-icon">📦</div>
+        <p>${esc(t("emptyOrders"))}</p>
+      </div>
+    `;
+
+    $("#clientContent").innerHTML = html;
+    return;
+  }
+
+  orders.forEach(function(order) {
+
+    const restaurant = db.restaurants.find(function(r) {
+      return r.id === order.restaurantId;
+    });
+
+    html += `
+      <div class="order-card">
+
+        <div class="order-head">
+          <div>
+            <h3>
+              ${esc(t("orderNumber"))} #${esc(order.number)}
+            </h3>
+            <small>
+              🏪 ${esc(restaurant ? restaurant.name : "")}
+            </small>
+          </div>
+
+          <span class="status ${esc(order.status)}">
+            ${esc(statusText(order.status))}
+          </span>
+        </div>
+
+        <div class="order-items">
+          ${
+            order.items.map(function(item) {
+              return `
+                <div class="order-item">
+                  <span>
+                    ${esc(
+                      lang === "ar"
+                        ? item.nameAr
+                        : item.nameFr
+                    )}
+                    × ${item.qty}
+                  </span>
+                  <strong>${money(item.price * item.qty)}</strong>
+                </div>
+              `;
+            }).join("")
+          }
+        </div>
+
+        <div>
+          <strong>${esc(t("total"))}: </strong>
+          <span class="price">${money(order.total)}</span>
+        </div>
+
+        ${
+          order.driverId
+            ? `
+              <div class="info-box">
+                🚴 <strong>${esc(t("driverName"))}:</strong>
+                ${esc(order.driverName)}
+              </div>
+            `
+            : ""
+        }
+
+        ${
+          order.status === "done"
+            ? renderRatings(order)
+            : ""
+        }
+
+      </div>
+    `;
+  });
+
+  $("#clientContent").innerHTML = html;
+}
+
+/* ================= RATINGS ================= */
+
+function renderRatings(order) {
+
+  let html = "";
+
+  if (order.foodRating == null) {
+
+    html += `
+      <div class="rating-box">
+        <div class="rating-title">${esc(t("rateFood"))}</div>
+
+        <div class="stars">
+          ${[1,2,3,4,5].map(function(n) {
+            return `
+              <button
+                type="button"
+                class="star"
+                data-rate-food="${esc(order.id)}"
+                data-rating="${n}">
+                ⭐
+              </button>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    `;
+
+  } else {
+
+    html += `
+      <div class="rating-box">
+        ${esc(t("rateFood"))}: ${"⭐".repeat(order.foodRating)}
+      </div>
+    `;
+  }
+
+  if (order.driverId) {
+
+    if (order.driverRating == null) {
+
+      html += `
+        <div class="rating-box">
+          <div class="rating-title">${esc(t("rateDriver"))}</div>
+
+          <div class="stars">
+            ${[1,2,3,4,5].map(function(n) {
+              return `
+                <button
+                  type="button"
+                  class="star"
+                  data-rate-driver="${esc(order.id)}"
+                  data-rating="${n}">
+                  ⭐
+                </button>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+
+    } else {
+
+      html += `
+        <div class="rating-box">
+          ${esc(t("rateDriver"))}: ${"⭐".repeat(order.driverRating)}
+        </div>
+      `;
+    }
+  }
+
+  return html;
+}
+
+function rateOrder(orderId, type, rating) {
+  rateOrderInner(orderId, type, rating).catch(function(error) {
+    toast("خطأ: " + (error && error.message ? error.message : error));
+  });
+}
+
+async function rateOrderInner(orderId, type, rating) {
+
+  const order = db.orders.find(function(o) {
+    return o.id === orderId &&
+      o.clientId === user.id;
+  });
+
+  if (!order) return;
+
+  const updates = {};
+
+  if (type === "food") {
+    updates.foodRating = rating;
+  }
+
+  if (type === "driver") {
+    updates.driverRating = rating;
+  }
+
+  await fsdb.collection("orders").doc(orderId).update(updates);
+
+  renderClientOrders();
+
+  toast(t("ratingSaved"));
+}
+
+/* ================= PROFILE ================= */
+
+function renderClientProfile() {
+
+  $("#clientContent").innerHTML = `
+    <div class="section-title">
+      <h3>${esc(t("profile"))}</h3>
+    </div>
+
+    <div class="profile-card">
+
+      <div class="profile-avatar">👤</div>
+
+      <h2>${esc(user.name)}</h2>
+
+      <p>
+        📞 ${esc(user.phone)}
+      </p>
+
+      <p>
+        📍 ${esc(getWilaya(user.wilaya))}
+      </p>
+
+      <div class="info-box">
+        ${esc(user.address || "")}
+      </div>
+
+      <button
+        type="button"
+        id="profileWilayaBtn"
+        class="primary-btn full"
+        style="margin-top:12px;">
+        📍 ${esc(t("changeWilaya"))}
+      </button>
+
+      <button
+        type="button"
+        class="logout-btn full"
+        data-logout
+        style="margin-top:10px;">
+        🚪 ${esc(t("logout"))}
+      </button>
+
+    </div>
+  `;
+}
+
+/* ================= SELLER ================= */
+
+function renderSeller() {
+
+  const restaurant = getSellerRestaurant();
+
+  $("#sellerRestaurantTitle").textContent =
+    restaurant ? restaurant.name : "وصلي";
+
+  $$(".dash-tab").forEach(function(btn) {
+    btn.classList.toggle(
+      "active",
+      btn.getAttribute("data-seller-tab") === sellerTab
+    );
+  });
+
+  if (sellerTab === "orders") {
+    renderSellerOrders();
+  } else {
+    renderSellerFoods();
+  }
+}
+
+function renderSellerOrders() {
+
+  const restaurant = getSellerRestaurant();
+
+  if (!restaurant) {
+    $("#sellerContent").innerHTML = `
+      <div class="empty">
+        <p>${esc(t("empty"))}</p>
+      </div>
+    `;
+    return;
+  }
+
+  const orders = db.orders.filter(function(o) {
+    return o.restaurantId === restaurant.id;
+  });
+
+  let html = `
+    <div class="section-title">
+      <h3>${esc(t("sellerOrders"))}</h3>
+      <small>${orders.length}</small>
+    </div>
+  `;
+
+  if (!orders.length) {
+
+    html += `
+      <div class="empty">
+        <div class="empty-icon">📦</div>
+        <p>${esc(t("emptyOrders"))}</p>
+      </div>
+    `;
+
+    $("#sellerContent").innerHTML = html;
+    return;
+  }
+
+  orders.forEach(function(order) {
+
+    html += `
+      <div class="order-card">
+
+        <div class="order-head">
+
+          <div>
+            <h3>
+              #${esc(order.number)}
+            </h3>
+
+            <small>
+              👤 ${esc(order.customerName)}
+            </small>
+          </div>
+
+          <span class="status ${esc(order.status)}">
+            ${esc(statusText(order.status))}
+          </span>
+
+        </div>
+
+        <div class="order-items">
+          ${
+            order.items.map(function(item) {
+              return `
+                <div class="order-item">
+                  <span>
+                    ${esc(
+                      lang === "ar"
+                        ? item.nameAr
+                        : item.nameFr
+                    )} × ${item.qty}
+                  </span>
+                  <strong>${money(item.price * item.qty)}</strong>
+                </div>
+              `;
+            }).join("")
+          }
+        </div>
+
+        <div class="info-box">
+          👤 <strong>${esc(t("customer"))}:</strong>
+          ${esc(order.customerName)}<br>
+
+          📞 <strong>${esc(t("phoneLabel"))}:</strong>
+          ${esc(order.customerPhone)}<br>
+
+          📍 <strong>${esc(t("deliveryAddress"))}:</strong>
+          ${esc(order.customerAddress)}<br>
+
+          ${
+            order.note
+              ? "📝 <strong>" +
+                esc(t("orderNote")) +
+                ":</strong> " +
+                esc(order.note)
+              : ""
+          }
+        </div>
+
+        ${
+          order.driverId
+            ? `
+              <div class="info-box">
+                🚴 ${esc(t("driverName"))}:
+                <strong>${esc(order.driverName)}</strong>
+              </div>
+            `
+            : ""
+        }
+
+        ${
+          order.status === "waiting"
+            ? `
+              <div class="action-row">
+
+                <button
+                  type="button"
+                  class="action-btn action-green"
+                  data-seller-accept="${esc(order.id)}">
+                  ✓ ${esc(t("accept"))}
+                </button>
+
+                <button
+                  type="button"
+                  class="action-btn action-red"
+                  data-seller-reject="${esc(order.id)}">
+                  ✕ ${esc(t("reject"))}
+                </button>
+
+              </div>
+            `
+            : ""
+        }
+
+      </div>
+    `;
+  });
+
+  $("#sellerContent").innerHTML = html;
+}
+
+/* ================= SELLER FOODS ================= */
+
+function renderSellerFoods() {
+
+  const restaurant = getSellerRestaurant();
+
+  if (!restaurant) return;
+
+  const foods = db.foods.filter(function(f) {
+    return f.restaurantId === restaurant.id;
+  });
+
+  let html = `
+    <button
+      type="button"
+      class="primary-btn add-food-btn"
+      id="openAddFood">
+      + ${esc(t("addFood"))}
+    </button>
+  `;
+
+  if (!foods.length) {
+
+    html += `
+      <div class="empty">
+        <div class="empty-icon">🍔</div>
+        <p>${esc(t("noFoods"))}</p>
+      </div>
+    `;
+
+  } else {
+
+    foods.forEach(function(food) {
+
+      html += `
+        <div class="food-admin-card">
+
+          <img
+            src="${esc(food.image || "https://via.placeholder.com/200x200?text=Food")}"
+            onerror="this.src='https://via.placeholder.com/200x200?text=Food'">
+
+          <div class="food-admin-info">
+
+            <h4>${esc(getFoodName(food))}</h4>
+
+            <p>${esc(getFoodDescription(food))}</p>
+
+            <strong class="price">${money(food.price)}</strong>
+
+            <div class="admin-actions" style="margin-top:7px;">
+
+              <button
+                type="button"
+                class="small-btn edit-btn"
+                data-edit-food="${esc(food.id)}">
+                ✎ ${esc(t("edit"))}
+              </button>
+
+              <button
+                type="button"
+                class="small-btn delete-btn"
+                data-delete-food="${esc(food.id)}">
+                🗑 ${esc(t("delete"))}
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      `;
+    });
+  }
+
+  $("#sellerContent").innerHTML = html;
+}
+
+/* ================= FOOD MODAL ================= */
+
+function openFoodModal(foodId) {
+
+  editingFoodId = foodId || null;
+
+  const title = $("#foodModalTitle");
+
+  if (editingFoodId) {
+
+    const food = db.foods.find(function(f) {
+      return f.id === editingFoodId;
+    });
+
+    if (!food) return;
+
+    title.textContent = t("edit");
+
+    $("#foodId").value = food.id;
+    $("#foodName").value =
+      lang === "ar" ? food.nameAr : food.nameFr;
+    $("#foodPrice").value = food.price;
+    $("#foodCategory").value = food.category;
+    $("#foodDescription").value =
+      lang === "ar"
+        ? food.descriptionAr
+        : food.descriptionFr;
+    $("#foodImage").value = food.image || "";
+
+  } else {
+
+    title.textContent = t("addFood");
+
+    $("#foodForm").reset();
+    $("#foodId").value = "";
+
+  }
+
+  $("#foodModal").hidden = false;
+}
+
+function closeModal(id) {
+
+  const modal = $("#" + id);
+
+  if (modal) {
+    modal.hidden = true;
+  }
+}
+
+function saveFood() {
+  saveFoodInner().catch(function(error) {
+    toast("خطأ أثناء حفظ الطعام: " + (error && error.message ? error.message : error));
+  });
+}
+
+async function saveFoodInner() {
+
+  const restaurant = getSellerRestaurant();
+
+  if (!restaurant) return;
+
+  const name = $("#foodName").value.trim();
+  const price = Number($("#foodPrice").value);
+  const category = $("#foodCategory").value;
+  const description = $("#foodDescription").value.trim();
+  const image = $("#foodImage").value.trim();
+
+  if (!name || !price) {
+    toast(
+      lang === "ar"
+        ? "أكمل معلومات الطعام."
+        : "Complétez les informations du plat."
+    );
+    return;
+  }
+
+  if (editingFoodId) {
+
+    const food = db.foods.find(function(f) {
+      return f.id === editingFoodId &&
+        f.restaurantId === restaurant.id;
+    });
+
+    if (food) {
+
+      const updates = {
+        price: price,
+        category: category,
+        image: image
+      };
+
+      if (lang === "ar") {
+        updates.nameAr = name;
+        updates.descriptionAr = description;
+      } else {
+        updates.nameFr = name;
+        updates.descriptionFr = description;
+      }
+
+      await fsdb.collection("foods").doc(food.id).update(updates);
+    }
+
+  } else {
+
+    const food = {
+      restaurantId: restaurant.id,
+      nameAr: name,
+      nameFr: name,
+      price: price,
+      category: category,
+      descriptionAr: lang === "ar" ? description : "",
+      descriptionFr: lang === "fr" ? description : "",
+      image: image
+    };
+
+    await fsdb.collection("foods").add(food);
+  }
+
+  closeModal("foodModal");
+  editingFoodId = null;
+
+  renderSellerFoods();
+
+  toast(t("foodSaved"));
+}
+
+/* ================= DELETE FOOD ================= */
+
+function deleteFood(foodId) {
+  deleteFoodInner(foodId).catch(function(error) {
+    toast("خطأ أثناء الحذف: " + (error && error.message ? error.message : error));
+  });
+}
+
+async function deleteFoodInner(foodId) {
+
+  const restaurant = getSellerRestaurant();
+
+  if (!restaurant) return;
+
+  if (!confirm(t("deleteConfirm"))) {
+    return;
+  }
+
+  await fsdb.collection("foods").doc(foodId).delete();
+
+  renderSellerFoods();
+
+  toast(t("foodDeleted"));
+}
+
+/* ================= SELLER ORDER ACTIONS ================= */
+
+function sellerAccept(orderId) {
+  sellerAcceptInner(orderId).catch(function(error) {
+    toast("خطأ: " + (error && error.message ? error.message : error));
+  });
+}
+
+async function sellerAcceptInner(orderId) {
+
+  const restaurant = getSellerRestaurant();
+
+  const order = db.orders.find(function(o) {
+    return o.id === orderId &&
+      o.restaurantId === restaurant.id;
+  });
+
+  if (!order) return;
+
+  await fsdb.collection("orders").doc(orderId).update({ status: "confirmed" });
+
+  renderSellerOrders();
+
+  toast(t("orderAccepted"));
+}
+
+function sellerReject(orderId) {
+  sellerRejectInner(orderId).catch(function(error) {
+    toast("خطأ: " + (error && error.message ? error.message : error));
+  });
+}
+
+async function sellerRejectInner(orderId) {
+
+  const restaurant = getSellerRestaurant();
+
+  const order = db.orders.find(function(o) {
+    return o.id === orderId &&
+      o.restaurantId === restaurant.id;
+  });
+
+  if (!order) return;
+
+  await fsdb.collection("orders").doc(orderId).update({ status: "rejected" });
+
+  renderSellerOrders();
+
+  toast(t("orderRejected"));
+}
+
+/* ================= DRIVER ================= */
+
+function renderDriver() {
+
+  $("#driverTitle").textContent = user.name;
+
+  const online = !!user.online;
+
+  const availableOrders = db.orders.filter(function(order) {
+
+    return (
+      order.wilaya === user.wilaya &&
+      order.status === "confirmed" &&
+      !order.driverId
+    );
+  });
+
+  const myOrders = db.orders.filter(function(order) {
+    return order.driverId === user.id &&
+      order.status === "onWay";
+  });
+
+  let html = `
+    <div class="driver-status">
+
+      <div class="online-row">
+
+        <div>
+          <strong>
+            ${esc(
+              online
+                ? t("available")
+                : t("offline")
+            )}
+          </strong>
+
+          <div style="color:#777;font-size:12px;margin-top:5px;">
+            📍 ${esc(getWilaya(user.wilaya))}
+          </div>
+        </div>
+
+        <label class="switch">
+          <input
+            type="checkbox"
+            id="driverOnlineToggle"
+            ${online ? "checked" : ""}>
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+    </div>
+  `;
+
+  html += `
+    <div class="section-title">
+      <h3>${esc(t("deliveryRequests"))}</h3>
+      <small>${availableOrders.length}</small>
+    </div>
+  `;
+
+  if (!online) {
+
+    html += `
+      <div class="empty">
+        <div class="empty-icon">🚴</div>
+        <p>${esc(t("offline"))}</p>
+      </div>
+    `;
+
+  } else if (!availableOrders.length) {
+
+    html += `
+      <div class="empty">
+        <div class="empty-icon">📦</div>
+        <p>${esc(t("emptyOrders"))}</p>
+      </div>
+    `;
+
+  } else {
+
+    availableOrders.forEach(function(order) {
+      html += renderDriverOrder(order, false);
+    });
+  }
+
+  if (myOrders.length) {
+
+    html += `
+      <div class="section-title">
+        <h3>${esc(t("currentOrders"))}</h3>
+      </div>
+    `;
+
+    myOrders.forEach(function(order) {
+      html += renderDriverOrder(order, true);
+    });
+  }
+
+  $("#driverContent").innerHTML = html;
+}
+
+function renderDriverOrder(order, mine) {
+
+  const restaurant = db.restaurants.find(function(r) {
+    return r.id === order.restaurantId;
+  });
+
+  return `
+    <div class="order-card">
+
+      <div class="order-head">
+
+        <div>
+          <h3>
+            #${esc(order.number)}
+          </h3>
+
+          <small>
+            🏪 ${esc(restaurant ? restaurant.name : "")}
+          </small>
+        </div>
+
+        <span class="status ${esc(order.status)}">
+          ${esc(statusText(order.status))}
+        </span>
+
+      </div>
+
+      <div class="info-box">
+
+        👤 <strong>${esc(t("customer"))}:</strong>
+        ${esc(order.customerName)}<br>
+
+        📞 <strong>${esc(t("phoneLabel"))}:</strong>
+        ${esc(order.customerPhone)}<br>
+
+        📍 <strong>${esc(t("deliveryAddress"))}:</strong>
+        ${esc(order.customerAddress)}<br>
+
+        ${
+          order.note
+            ? "📝 <strong>" +
+              esc(t("orderNote")) +
+              ":</strong> " +
+              esc(order.note)
+            : ""
+        }
+
+      </div>
+
+      <div class="order-items">
+        ${
+          order.items.map(function(item) {
+            return `
+              <div class="order-item">
+                <span>
+                  ${esc(
+                    lang === "ar"
+                      ? item.nameAr
+                      : item.nameFr
+                  )}
+                  × ${item.qty}
+                </span>
+
+                <strong>${money(item.price * item.qty)}</strong>
+              </div>
+            `;
+          }).join("")
+        }
+      </div>
+
+      ${
+        mine
+          ? `
+            <button
+              type="button"
+              class="action-btn action-green"
+              style="width:100%;"
+              data-driver-complete="${esc(order.id)}">
+              ✓ ${esc(t("complete"))}
+            </button>
+          `
+          : `
+            <div class="action-row">
+
+              <button
+                type="button"
+                class="action-btn action-green"
+                data-driver-accept="${esc(order.id)}">
+                ✓ ${esc(t("accept"))}
+              </button>
+
+              <button
+                type="button"
+                class="action-btn action-red"
+                data-driver-reject="${esc(order.id)}">
+                ✕ ${esc(t("reject"))}
+              </button>
+
+            </div>
+          `
+      }
+
+    </div>
+  `;
+}
+
+/* ================= DRIVER ACTIONS ================= */
+
+function driverAccept(orderId) {
+  driverAcceptInner(orderId).catch(function(error) {
+    toast("خطأ: " + (error && error.message ? error.message : error));
+  });
+}
+
+async function driverAcceptInner(orderId) {
+
+  const order = db.orders.find(function(o) {
+    return o.id === orderId &&
+      o.status === "confirmed" &&
+      !o.driverId &&
+      o.wilaya === user.wilaya;
+  });
+
+  if (!order) return;
+
+  await fsdb.collection("orders").doc(orderId).update({
+    driverId: user.id,
+    driverName: user.name,
+    status: "onWay"
+  });
+
+  renderDriver();
+
+  toast(t("driverAccepted"));
+}
+
+function driverReject(orderId) {
+
+  const order = db.orders.find(function(o) {
+    return o.id === orderId &&
+      o.status === "confirmed" &&
+      !o.driverId;
+  });
+
+  if (!order) return;
+
+  toast(t("driverRejected"));
+
+  renderDriver();
+}
+
+function driverComplete(orderId) {
+  driverCompleteInner(orderId).catch(function(error) {
+    toast("خطأ: " + (error && error.message ? error.message : error));
+  });
+}
+
+async function driverCompleteInner(orderId) {
+
+  const order = db.orders.find(function(o) {
+    return o.id === orderId &&
+      o.driverId === user.id &&
+      o.status === "onWay";
+  });
+
+  if (!order) return;
+
+  await fsdb.collection("orders").doc(orderId).update({
+    status: "done",
+    completedAt: new Date().toISOString()
+  });
+
+  renderDriver();
+
+  toast(t("deliveryDone"));
+}
+
+/* ================= WILAYA ================= */
+
+function openWilayaModal() {
+
+  fillWilayaSelect(
+    $("#changeWilayaSelect"),
+    user.wilaya
+  );
+
+  $("#wilayaModal").hidden = false;
+}
+
+function saveWilaya() {
+  saveWilayaInner().catch(function(error) {
+    toast("خطأ: " + (error && error.message ? error.message : error));
+  });
+}
+
+async function saveWilayaInner() {
+
+  const newWilaya = $("#changeWilayaSelect").value;
+
+  if (!newWilaya || !user) return;
+
+  await fsdb.collection("users").doc(user.id).update({ wilaya: newWilaya });
+
+  user.wilaya = newWilaya;
+
+  if (user.role === "seller") {
+
+    const restaurant = getSellerRestaurant();
+
+    if (restaurant) {
+      await fsdb.collection("restaurants").doc(restaurant.id).update({ wilaya: newWilaya });
+    }
+  }
+
+  closeModal("wilayaModal");
+
+  renderCurrentApp();
+
+  toast(t("saved"));
+}
+
+/* ================= EVENT SYSTEM ================= */
+
+document.addEventListener("click", function(event) {
+
+  const target = event.target.closest("button");
+
+  if (!target) return;
+
+  /* ---------- LOGIN SUBMIT (click-based, works even if
+     the sandboxed WebView blocks the native 'submit' event) ---------- */
+
+  if (target.id === "loginSubmitBtn") {
+    event.preventDefault();
+    login();
+    return;
+  }
+
+  /* ---------- FOOD SUBMIT (click-based, same reason) ---------- */
+
+  if (target.id === "foodSubmitBtn") {
+    event.preventDefault();
+    saveFood();
+    return;
+  }
+
+  /* ---------- LOGOUT ---------- */
+
+  if (target.hasAttribute("data-logout")) {
+    logout();
+    return;
+  }
+
+  /* ---------- LANGUAGE ---------- */
+
+  if (target.id === "langAr") {
+    lang = "ar";
+    safeStorage.setItem("wasli_lang", lang);
+    translatePage();
+    return;
+  }
+
+  if (target.id === "langFr") {
+    lang = "fr";
+    safeStorage.setItem("wasli_lang", lang);
+    translatePage();
+    return;
+  }
+
+  /* ---------- ROLE ---------- */
+
+  if (target.hasAttribute("data-role")) {
+    setRole(target.getAttribute("data-role"));
+    return;
+  }
+
+  /* ---------- CLIENT NAV ---------- */
+
+  if (target.hasAttribute("data-client-page")) {
+
+    clientPage =
+      target.getAttribute("data-client-page");
+
+    renderClient();
+    return;
+  }
+
+  /* ---------- CATEGORY ---------- */
+
+  if (target.hasAttribute("data-category")) {
+
+    clientCategory =
+      target.getAttribute("data-category");
+
+    renderClientHome();
+    return;
+  }
+
+  /* ---------- ADD FOOD TO CART ---------- */
+
+  if (target.hasAttribute("data-add-food")) {
+
+    addToCart(
+      target.getAttribute("data-add-food")
+    );
+
+    return;
+  }
+
+  /* ---------- CART PLUS ---------- */
+
+  if (target.hasAttribute("data-cart-plus")) {
+
+    const index = Number(
+      target.getAttribute("data-cart-plus")
+    );
+
+    const cart = getCart();
+
+    if (cart[index]) {
+      cart[index].qty += 1;
+      setCart(cart);
+      renderClientCart();
+      updateCartBadge();
+    }
+
+    return;
+  }
+
+  /* ---------- CART MINUS ---------- */
+
+  if (target.hasAttribute("data-cart-minus")) {
+
+    const index = Number(
+      target.getAttribute("data-cart-minus")
+    );
+
+    const cart = getCart();
+
+    if (!cart[index]) return;
+
+    cart[index].qty -= 1;
+
+    if (cart[index].qty <= 0) {
+      cart.splice(index, 1);
+    }
+
+    setCart(cart);
+    renderClientCart();
+    updateCartBadge();
+
+    return;
+  }
+
+  /* ---------- CHECKOUT ---------- */
+
+  if (target.id === "checkoutBtn") {
+    checkout();
+    return;
+  }
+
+  /* ---------- PROFILE WILAYA ---------- */
+
+  if (target.id === "profileWilayaBtn") {
+    openWilayaModal();
+    return;
+  }
+
+  /* ---------- CLIENT WILAYA ---------- */
+
+  if (target.id === "clientWilayaBtn") {
+    openWilayaModal();
+    return;
+  }
+
+  /* ---------- SAVE WILAYA ---------- */
+
+  if (target.id === "saveWilayaBtn") {
+    saveWilaya();
+    return;
+  }
+
+  /* ---------- CLOSE MODALS ---------- */
+
+  if (target.hasAttribute("data-close-modal")) {
+
+    closeModal(
+      target.getAttribute("data-close-modal")
+    );
+
+    return;
+  }
+
+  /* ---------- SELLER TABS ---------- */
+
+  if (target.hasAttribute("data-seller-tab")) {
+
+    sellerTab =
+      target.getAttribute("data-seller-tab");
+
+    renderSeller();
+    return;
+  }
+
+  /* ---------- ADD FOOD ---------- */
+
+  if (target.id === "openAddFood") {
+    openFoodModal(null);
+    return;
+  }
+
+  /* ---------- EDIT FOOD ---------- */
+
+  if (target.hasAttribute("data-edit-food")) {
+
+    openFoodModal(
+      target.getAttribute("data-edit-food")
+    );
+
+    return;
+  }
+
+  /* ---------- DELETE FOOD ---------- */
+
+  if (target.hasAttribute("data-delete-food")) {
+
+    deleteFood(
+      target.getAttribute("data-delete-food")
+    );
+
+    return;
+  }
+
+  /* ---------- SELLER ACCEPT ---------- */
+
+  if (target.hasAttribute("data-seller-accept")) {
+
+    sellerAccept(
+      target.getAttribute("data-seller-accept")
+    );
+
+    return;
+  }
+
+  /* ---------- SELLER REJECT ---------- */
+
+  if (target.hasAttribute("data-seller-reject")) {
+
+    sellerReject(
+      target.getAttribute("data-seller-reject")
+    );
+
+    return;
+  }
+
+  /* ---------- DRIVER ACCEPT ---------- */
+
+  if (target.hasAttribute("data-driver-accept")) {
+
+    driverAccept(
+      target.getAttribute("data-driver-accept")
+    );
+
+    return;
+  }
+
+  /* ---------- DRIVER REJECT ---------- */
+
+  if (target.hasAttribute("data-driver-reject")) {
+
+    driverReject(
+      target.getAttribute("data-driver-reject")
+    );
+
+    return;
+  }
+
+  /* ---------- DRIVER COMPLETE ---------- */
+
+  if (target.hasAttribute("data-driver-complete")) {
+
+    driverComplete(
+      target.getAttribute("data-driver-complete")
+    );
+
+    return;
+  }
+
+  /* ---------- FOOD RATING ---------- */
+
+  if (target.hasAttribute("data-rate-food")) {
+
+    rateOrder(
+      target.getAttribute("data-rate-food"),
+      "food",
+      Number(target.getAttribute("data-rating"))
+    );
+
+    return;
+  }
+
+  /* ---------- DRIVER RATING ---------- */
+
+  if (target.hasAttribute("data-rate-driver")) {
+
+    rateOrder(
+      target.getAttribute("data-rate-driver"),
+      "driver",
+      Number(target.getAttribute("data-rating"))
+    );
+
+    return;
+  }
+
+});
+
+/* ================= FORMS ================= */
+
+document.addEventListener("submit", function(event) {
+
+  if (event.target.id === "loginForm") {
+
+    event.preventDefault();
+    login();
+    return;
+  }
+
+  if (event.target.id === "foodForm") {
+
+    event.preventDefault();
+    saveFood();
+    return;
+  }
+
+});
+
+/* ================= DRIVER TOGGLE ================= */
+
+document.addEventListener("change", function(event) {
+
+  if (event.target.id === "driverOnlineToggle") {
+
+    if (!user || user.role !== "driver") return;
+
+    const checked = event.target.checked;
+
+    fsdb.collection("users").doc(user.id).update({ online: checked })
+      .then(function() {
+        user.online = checked;
+        renderDriver();
+        toast(checked ? t("online") : t("offlineShort"));
+      })
+      .catch(function(error) {
+        toast("خطأ: " + (error && error.message ? error.message : error));
+      });
+
+    return;
+  }
+
+});
+
+/* ================= MODAL BACKDROP ================= */
+
+document.addEventListener("click", function(event) {
+
+  if (
+    event.target.classList.contains("modal")
+  ) {
+    event.target.hidden = true;
+  }
+
+});
+
+/* ================= INITIALIZATION ================= */
+
+function initializeWasli() {
+
+  fillWilayaSelect(
+    $("#loginWilaya"),
+    "28"
+  );
+
+  setRole("client");
+
+  translatePage();
+
+  initFirebase();
+  startRealtimeSync();
+
+  setTimeout(async function() {
+    await restoreSession();
+    translatePage();
+  }, 700);
+}
+
+initializeWasli();
+</script>
+</body>
+</html>
