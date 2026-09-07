@@ -2196,16 +2196,22 @@ async function loginInner() {
   let isNewAccount = false;
 
   try {
-    const credential = await firebase.auth().signInWithEmailAndPassword(email, password);
+    /* نحاول الإنشاء أولاً: إذا كان الحساب موجوداً فعلاً سيفشل
+       برمز "email-already-in-use" وهو رمز موثوق دائماً، بعكس
+       أخطاء تسجيل الدخول التي توحّدها Firebase الحديثة تحت
+       رمز عام واحد لأسباب أمنية. */
+    const credential = await firebase.auth().createUserWithEmailAndPassword(email, password);
     authUser = credential.user;
+    isNewAccount = true;
   } catch (error) {
-    if (error.code === "auth/user-not-found") {
-      const credential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-      authUser = credential.user;
-      isNewAccount = true;
-    } else if (error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
-      toast(t("wrongPassword"));
-      return;
+    if (error.code === "auth/email-already-in-use") {
+      try {
+        const credential = await firebase.auth().signInWithEmailAndPassword(email, password);
+        authUser = credential.user;
+      } catch (signInError) {
+        toast(t("wrongPassword"));
+        return;
+      }
     } else {
       throw error;
     }
