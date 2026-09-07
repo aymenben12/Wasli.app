@@ -1113,8 +1113,80 @@ html[dir="ltr"] .badge {
         <span data-i18n="demoNote">نسخة تجريبية: البيانات محفوظة على هذا الجهاز.</span>
       </p>
 
+      <p style="text-align:center; margin-top:10px;">
+        <a href="#" id="adminPanelLink"
+           style="color:#bbb; font-size:12px; text-decoration:underline;">
+          لوحة الإدارة
+        </a>
+      </p>
+
     </div>
   </section>
+
+  <!-- ================= SUSPENDED SCREEN ================= -->
+  <section id="suspendedScreen" class="screen login-screen" hidden>
+    <div class="login-card" style="text-align:center; margin-top:40px;">
+      <div style="font-size:50px;">⛔</div>
+      <h2>تم إيقاف حسابك مؤقتاً</h2>
+      <p class="muted">
+        يرجى التواصل مع إدارة وصلي لتسوية العمولة المستحقة قبل استئناف العمل.
+      </p>
+      <button type="button" class="logout-btn full" data-logout style="margin-top:15px;">
+        🚪 تسجيل الخروج
+      </button>
+    </div>
+  </section>
+
+  <!-- ================= ADMIN PANEL ================= -->
+  <section id="adminApp" class="app-screen" hidden>
+
+    <header class="dashboard-header">
+      <div>
+        <small>لوحة الإدارة</small>
+        <h2>وصلي</h2>
+      </div>
+
+      <button type="button" class="logout-btn" data-admin-logout>
+        🚪 خروج
+      </button>
+    </header>
+
+    <div class="dashboard-tabs">
+      <button type="button" class="dash-tab active" data-admin-tab="sellers">
+        🏪 المطاعم
+      </button>
+
+      <button type="button" class="dash-tab" data-admin-tab="drivers">
+        🚴 الديليفري
+      </button>
+    </div>
+
+    <main id="adminContent" class="dashboard-content"></main>
+
+  </section>
+
+  <!-- ================= ADMIN PASSWORD MODAL ================= -->
+  <div id="adminPasswordModal" class="modal" hidden>
+    <div class="modal-box">
+
+      <div class="modal-head">
+        <h3>دخول الإدارة</h3>
+        <button type="button" class="close-btn" data-close-modal="adminPasswordModal">×</button>
+      </div>
+
+      <div class="field">
+        <label>كلمة مرور الإدارة</label>
+        <input id="adminPasswordInput" type="password">
+      </div>
+
+      <button type="button" id="adminPasswordSubmit" class="primary-btn full">
+        دخول
+      </button>
+
+    </div>
+  </div>
+
+
 
   <!-- ================= CUSTOMER APP ================= -->
   <section id="clientApp" class="app-screen" hidden>
@@ -1402,6 +1474,12 @@ let clientCategory = "all";
 let clientSearch = "";
 let sellerTab = "orders";
 let driverTab = "requests";
+let adminTab = "sellers";
+let usersListenerStarted = false;
+let adminPanelOpen = false;
+
+/* ⚠️ غيّر هذه الكلمة إلى كلمة مرور خاصة بك فقط لا يعرفها أحد آخر */
+const ADMIN_PASSWORD = "wasli-admin-2026";
 let editingFoodId = null;
 let pendingDriverAcceptOrderId = null;
 let toastTimer = null;
@@ -1796,6 +1874,22 @@ function mapSnapshot(snapshot) {
   });
 }
 
+/* مستمع مستخدمين (users) يبدأ فقط عند فتح لوحة الإدارة —
+   ليس محمّلاً لكل الزوار العاديين، توفيراً للقراءات وللخصوصية. */
+function startUsersListenerIfNeeded() {
+  if (usersListenerStarted || !firebaseReady) return;
+  usersListenerStarted = true;
+
+  fsdb.collection("users").onSnapshot(function(snapshot) {
+    db.users = mapSnapshot(snapshot);
+    if (adminPanelOpen) {
+      renderAdminPanel();
+    }
+  }, function(error) {
+    toast("Firestore (users): " + error.message);
+  });
+}
+
 function startRealtimeSync() {
   if (!firebaseReady) return;
 
@@ -1959,7 +2053,9 @@ function showOnly(id) {
     "#loginScreen",
     "#clientApp",
     "#sellerApp",
-    "#driverApp"
+    "#driverApp",
+    "#suspendedScreen",
+    "#adminApp"
   ].forEach(function(selector) {
     const el = $(selector);
     if (el) el.hidden = true;
@@ -2431,6 +2527,11 @@ function renderCurrentApp() {
   try {
     if (!user) {
       showOnly("loginScreen");
+      return;
+    }
+
+    if (user.suspended) {
+      showOnly("suspendedScreen");
       return;
     }
 
@@ -4574,6 +4675,282 @@ document.addEventListener("click", function(event) {
     event.target.classList.contains("modal")
   ) {
     event.target.hidden = true;
+  }
+
+});
+
+/* ================= ADMIN PANEL ================= */
+
+function openAdminLogin() {
+  $("#adminPasswordInput").value = "";
+  $("#adminPasswordModal").hidden = false;
+}
+
+function attemptAdminLogin() {
+  const entered = $("#adminPasswordInput").value;
+
+  if (entered !== ADMIN_PASSWORD) {
+    toast("كلمة مرور الإدارة غير صحيحة.");
+    return;
+  }
+
+  closeModal("adminPasswordModal");
+  adminPanelOpen = true;
+  adminTab = "sellers";
+
+  startUsersListenerIfNeeded();
+  showOnly("adminApp");
+  renderAdminPanel();
+}
+
+function adminLogout() {
+  adminPanelOpen = false;
+  showOnly("loginScreen");
+  toast("تم الخروج من لوحة الإدارة.");
+}
+
+function renderAdminPanel() {
+  $$(".dash-tab").forEach(function(btn) {
+    btn.classList.toggle(
+      "active",
+      btn.getAttribute("data-admin-tab") === adminTab
+    );
+  });
+
+  if (adminTab === "drivers") {
+    renderAdminDrivers();
+  } else {
+    renderAdminSellers();
+  }
+}
+
+function renderAdminSellers() {
+
+  const sellers = db.users.filter(function(u) {
+    return u.role === "seller";
+  });
+
+  let html = `
+    <div class="section-title">
+      <h3>المطاعم</h3>
+      <small>${sellers.length}</small>
+    </div>
+  `;
+
+  if (!sellers.length) {
+    html += `
+      <div class="empty">
+        <div class="empty-icon">🏪</div>
+        <p>لا يوجد مطاعم مسجّلة بعد.</p>
+      </div>
+    `;
+    $("#adminContent").innerHTML = html;
+    return;
+  }
+
+  sellers.forEach(function(seller) {
+
+    const restaurant = db.restaurants.find(function(r) {
+      return r.ownerId === seller.id;
+    });
+
+    const lastSettled = seller.lastSettledAt || 0;
+
+    const doneOrders = db.orders.filter(function(o) {
+      return restaurant &&
+        o.restaurantId === restaurant.id &&
+        o.status === "done" &&
+        (o.createdAtMs || 0) > lastSettled;
+    });
+
+    let commission = 0;
+    doneOrders.forEach(function(o) {
+      commission += Number(o.platformFeeRestaurant || 0);
+    });
+
+    html += renderAdminCard({
+      id: seller.id,
+      title: restaurant ? restaurant.name : seller.name,
+      name: seller.name,
+      phone: seller.phone,
+      wilaya: seller.wilaya,
+      ordersCount: doneOrders.length,
+      commission: commission,
+      suspended: !!seller.suspended
+    });
+  });
+
+  $("#adminContent").innerHTML = html;
+}
+
+function renderAdminDrivers() {
+
+  const drivers = db.users.filter(function(u) {
+    return u.role === "driver";
+  });
+
+  let html = `
+    <div class="section-title">
+      <h3>الديليفري</h3>
+      <small>${drivers.length}</small>
+    </div>
+  `;
+
+  if (!drivers.length) {
+    html += `
+      <div class="empty">
+        <div class="empty-icon">🚴</div>
+        <p>لا يوجد ديليفري مسجّل بعد.</p>
+      </div>
+    `;
+    $("#adminContent").innerHTML = html;
+    return;
+  }
+
+  drivers.forEach(function(driver) {
+
+    const lastSettled = driver.lastSettledAt || 0;
+
+    const doneOrders = db.orders.filter(function(o) {
+      return o.driverId === driver.id &&
+        o.status === "done" &&
+        (o.createdAtMs || 0) > lastSettled;
+    });
+
+    let commission = 0;
+    doneOrders.forEach(function(o) {
+      commission += Number(o.platformFeeDriver || 0);
+    });
+
+    html += renderAdminCard({
+      id: driver.id,
+      title: driver.name,
+      name: driver.name,
+      phone: driver.phone,
+      wilaya: driver.wilaya,
+      ordersCount: doneOrders.length,
+      commission: commission,
+      suspended: !!driver.suspended
+    });
+  });
+
+  $("#adminContent").innerHTML = html;
+}
+
+function renderAdminCard(data) {
+
+  const settled = data.commission <= 0;
+
+  return `
+    <div class="order-card">
+
+      <div class="order-head">
+        <div>
+          <h3>${esc(data.title)}</h3>
+          <small>👤 ${esc(data.name)}</small>
+        </div>
+
+        <span class="status ${settled ? "confirmed" : "rejected"}">
+          ${settled ? "✓ مسدّد" : "⚠ عليه مبلغ"}
+        </span>
+      </div>
+
+      <div class="info-box">
+        📞 <strong>الهاتف:</strong> ${esc(data.phone)} ${callButton(data.phone)}<br>
+        📍 <strong>الولاية:</strong> ${esc(getWilaya(data.wilaya))}<br>
+        📦 <strong>عدد الطلبات:</strong> ${data.ordersCount}<br>
+        💼 <strong>العمولة المستحقة:</strong> ${money(data.commission)}
+      </div>
+
+      <div class="action-row">
+
+        <button
+          type="button"
+          class="action-btn action-green"
+          data-admin-mark-paid="${esc(data.id)}"
+          ${settled ? "disabled" : ""}>
+          ✓ تأكيد الدفع
+        </button>
+
+        <button
+          type="button"
+          class="action-btn ${data.suspended ? "action-green" : "action-red"}"
+          data-admin-toggle-suspend="${esc(data.id)}">
+          ${data.suspended ? "▶ تفعيل الحساب" : "⏸ إيقاف الحساب"}
+        </button>
+
+      </div>
+
+    </div>
+  `;
+}
+
+function adminMarkPaid(userId) {
+  adminMarkPaidInner(userId).catch(function(error) {
+    toast("خطأ: " + (error && error.message ? error.message : error));
+  });
+}
+
+async function adminMarkPaidInner(userId) {
+  await fsdb.collection("users").doc(userId).update({
+    lastSettledAt: Date.now()
+  });
+
+  toast("تم تسجيل الدفع، تم تصفير العمولة المستحقة.");
+}
+
+function adminToggleSuspend(userId, currentlySuspended) {
+  adminToggleSuspendInner(userId, currentlySuspended).catch(function(error) {
+    toast("خطأ: " + (error && error.message ? error.message : error));
+  });
+}
+
+async function adminToggleSuspendInner(userId, currentlySuspended) {
+  await fsdb.collection("users").doc(userId).update({
+    suspended: !currentlySuspended
+  });
+
+  toast(currentlySuspended ? "تم تفعيل الحساب." : "تم إيقاف الحساب مؤقتاً.");
+}
+
+document.addEventListener("click", function(event) {
+
+  if (event.target.id === "adminPanelLink") {
+    event.preventDefault();
+    openAdminLogin();
+    return;
+  }
+
+  if (event.target.id === "adminPasswordSubmit") {
+    attemptAdminLogin();
+    return;
+  }
+
+  const adminLogoutBtn = event.target.closest("[data-admin-logout]");
+  if (adminLogoutBtn) {
+    adminLogout();
+    return;
+  }
+
+  const adminTabBtn = event.target.closest("[data-admin-tab]");
+  if (adminTabBtn) {
+    adminTab = adminTabBtn.getAttribute("data-admin-tab");
+    renderAdminPanel();
+    return;
+  }
+
+  const markPaidBtn = event.target.closest("[data-admin-mark-paid]");
+  if (markPaidBtn && !markPaidBtn.disabled) {
+    adminMarkPaid(markPaidBtn.getAttribute("data-admin-mark-paid"));
+    return;
+  }
+
+  const toggleSuspendBtn = event.target.closest("[data-admin-toggle-suspend]");
+  if (toggleSuspendBtn) {
+    const userId = toggleSuspendBtn.getAttribute("data-admin-toggle-suspend");
+    const isSuspended = toggleSuspendBtn.textContent.indexOf("تفعيل") !== -1;
+    adminToggleSuspend(userId, isSuspended);
+    return;
   }
 
 });
