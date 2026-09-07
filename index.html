@@ -581,6 +581,11 @@ button:active {
   color: #2367c9;
 }
 
+.status.readyForPickup {
+  background: #eef0ff;
+  color: #5b3fc9;
+}
+
 .status.waiting {
   background: #fff4d9;
   color: #a56a00;
@@ -1176,6 +1181,10 @@ html[dir="ltr"] .badge {
       <button type="button" class="dash-tab" data-seller-tab="foods">
         🍔 <span data-i18n="foods">الأطعمة</span>
       </button>
+
+      <button type="button" class="dash-tab" data-seller-tab="earnings">
+        💰 <span data-i18n="myEarnings">أرباحي</span>
+      </button>
     </div>
 
     <main id="sellerContent" class="dashboard-content"></main>
@@ -1195,6 +1204,16 @@ html[dir="ltr"] .badge {
         🚪 <span data-i18n="logout">تسجيل الخروج</span>
       </button>
     </header>
+
+    <div class="dashboard-tabs">
+      <button type="button" class="dash-tab active" data-driver-tab="requests">
+        📦 <span data-i18n="deliveryRequests">طلبات التوصيل</span>
+      </button>
+
+      <button type="button" class="dash-tab" data-driver-tab="earnings">
+        💰 <span data-i18n="myEarnings">أرباحي</span>
+      </button>
+    </div>
 
     <main id="driverContent" class="dashboard-content"></main>
 
@@ -1301,9 +1320,10 @@ html[dir="ltr"] .badge {
   <div id="toast" class="toast"></div>
 
 </div>
-<!-- Firebase SDK (compat build - simple <script> usage, no build tools needed) -->
+<!-- Firebase SDK (compat build) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
 /* =========================================================
    وصلي - JAVASCRIPT 1/2
@@ -1381,6 +1401,7 @@ let clientPage = "home";
 let clientCategory = "all";
 let clientSearch = "";
 let sellerTab = "orders";
+let driverTab = "requests";
 let editingFoodId = null;
 let pendingDriverAcceptOrderId = null;
 let toastTimer = null;
@@ -1501,7 +1522,8 @@ const I = {
     noRestaurants: "لا توجد مطاعم في هذه الولاية حالياً.",
     noFoods: "لا توجد أطعمة بعد.",
     waiting: "في انتظار المطعم",
-    confirmed: "تم تأكيد الطلب",
+    confirmed: "قبل المطعم، أكّد طلبك",
+    readyForPickup: "بانتظار الديليفري",
     rejected: "تم رفض الطلب",
     onWay: "الطلب في الطريق",
     done: "تم التسليم",
@@ -1571,7 +1593,22 @@ const I = {
     orderRejectedNotif: "تم رفض طلبك من المطعم",
     orderOnWayNotif: "الديليفري في الطريق إليك",
     orderDoneNotif: "تم تسليم طلبك، بالهناء والشفاء",
-    newDeliveryNotif: "طلب توصيل جديد متاح"
+    newDeliveryNotif: "طلب توصيل جديد متاح",
+    confirmOrderBtn: "تأكيد الطلب",
+    orderConfirmedByClient: "تم تأكيد الطلب، بانتظار الديليفري.",
+    platformFee: "عمولة وصلي (2%)",
+    myEarnings: "أرباحي",
+    grossEarnings: "إجمالي المبلغ المُحصَّل",
+    netEarnings: "صافي دخلك",
+    commissionOwed: "العمولة المستحقة لوصلي",
+    completedOrdersCount: "عدد الطلبات المكتملة",
+    paymentMethod: "طريقة الدفع",
+    payCash: "الدفع عند الاستلام",
+    payCard: "بطاقة بنكية",
+    cardComingSoon: "الدفع بالبطاقة قيد التطوير حالياً، سيتم تفعيله قريباً. تم اعتماد الدفع عند الاستلام لهذا الطلب.",
+    cardNumber: "رقم البطاقة",
+    cardExpiry: "تاريخ الانتهاء",
+    cardCvv: "CVV"
   },
 
   fr: {
@@ -1613,7 +1650,8 @@ const I = {
     noRestaurants: "Aucun restaurant dans cette wilaya pour le moment.",
     noFoods: "Aucun plat disponible.",
     waiting: "En attente du restaurant",
-    confirmed: "Commande confirmée",
+    confirmed: "Accepté, veuillez confirmer",
+    readyForPickup: "En attente d'un livreur",
     rejected: "Commande refusée",
     onWay: "Commande en route",
     done: "Livrée",
@@ -1683,7 +1721,22 @@ const I = {
     orderRejectedNotif: "Votre commande a été refusée par le restaurant",
     orderOnWayNotif: "Le livreur est en route",
     orderDoneNotif: "Votre commande a été livrée, bon appétit",
-    newDeliveryNotif: "Nouvelle demande de livraison disponible"
+    newDeliveryNotif: "Nouvelle demande de livraison disponible",
+    confirmOrderBtn: "Confirmer la commande",
+    orderConfirmedByClient: "Commande confirmée, en attente d'un livreur.",
+    platformFee: "Commission Wasli (2%)",
+    myEarnings: "Mes revenus",
+    grossEarnings: "Montant total encaissé",
+    netEarnings: "Votre revenu net",
+    commissionOwed: "Commission due à Wasli",
+    completedOrdersCount: "Commandes terminées",
+    paymentMethod: "Méthode de paiement",
+    payCash: "Paiement à la livraison",
+    payCard: "Carte bancaire",
+    cardComingSoon: "Le paiement par carte est en développement. Le paiement à la livraison a été appliqué pour cette commande.",
+    cardNumber: "Numéro de carte",
+    cardExpiry: "Date d'expiration",
+    cardCvv: "CVV"
   }
 };
 
@@ -1859,6 +1912,18 @@ function t(key) {
 
 function money(value) {
   return Number(value || 0).toFixed(2) + " DA";
+}
+
+function callButton(phone) {
+  if (!phone) return "";
+
+  return `
+    <a href="tel:${esc(phone)}"
+       class="small-btn edit-btn"
+       style="text-decoration:none; display:inline-block; margin-inline-start:6px;">
+      📞 ${esc(phone)}
+    </a>
+  `;
 }
 
 function esc(value) {
@@ -2069,17 +2134,16 @@ function setRole(newRole) {
 
 /* ================= LOGIN ================= */
 
-async function findUserRemote(phone, selectedRole) {
-  const snap = await fsdb.collection("users")
-    .where("phone", "==", phone)
-    .where("role", "==", selectedRole)
-    .limit(1)
-    .get();
+function sanitizeDigits(value) {
+  return String(value || "").replace(/[^0-9]/g, "");
+}
 
-  if (snap.empty) return null;
-
-  const docSnap = snap.docs[0];
-  return Object.assign({ id: docSnap.id }, docSnap.data());
+/* Firebase Auth يحتاج بريداً إلكترونياً كمعرّف. بما أن تطبيقنا
+   يعتمد على رقم الهاتف + الدور (زبون/مطعم/ديليفري) كهوية،
+   نحوّلهما تلقائياً إلى بريد وهمي فريد في الخلفية، دون أن
+   يشعر المستخدم بذلك (هو يكتب رقم هاتفه فقط كما كان دائماً). */
+function authEmailFor(phone, selectedRole) {
+  return sanitizeDigits(phone) + "_" + selectedRole + "@wasli.app";
 }
 
 function login() {
@@ -2126,63 +2190,35 @@ async function loginInner() {
     return;
   }
 
-  const existing = await findUserRemote(phone, role);
+  const email = authEmailFor(phone, role);
 
-  if (existing) {
+  let authUser = null;
+  let isNewAccount = false;
 
-    if (existing.password && existing.password !== password) {
+  try {
+    const credential = await firebase.auth().signInWithEmailAndPassword(email, password);
+    authUser = credential.user;
+  } catch (error) {
+    if (error.code === "auth/user-not-found") {
+      const credential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+      authUser = credential.user;
+      isNewAccount = true;
+    } else if (error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
       toast(t("wrongPassword"));
       return;
+    } else {
+      throw error;
     }
+  }
 
-    const updates = {
-      name: name,
-      wilaya: wilaya
-    };
+  const userDocRef = fsdb.collection("users").doc(authUser.uid);
 
-    if (!existing.password) {
-      updates.password = password;
-    }
-
-    if (role === "client") {
-      updates.address = address;
-    }
-
-    if (role === "seller") {
-      updates.restaurantName = restaurantName;
-    }
-
-    await fsdb.collection("users").doc(existing.id).update(updates);
-
-    user = Object.assign({}, existing, updates);
-
-    if (role === "seller") {
-      const restSnap = await fsdb.collection("restaurants")
-        .where("ownerId", "==", user.id)
-        .limit(1)
-        .get();
-
-      if (!restSnap.empty) {
-        await restSnap.docs[0].ref.update({
-          name: restaurantName,
-          wilaya: wilaya
-        });
-      } else {
-        await fsdb.collection("restaurants").add({
-          ownerId: user.id,
-          name: restaurantName,
-          wilaya: wilaya
-        });
-      }
-    }
-
-  } else {
+  if (isNewAccount) {
 
     const newUserData = {
       role: role,
       name: name,
       phone: phone,
-      password: password,
       wilaya: wilaya
     };
 
@@ -2198,26 +2234,65 @@ async function loginInner() {
       newUserData.online = false;
     }
 
-    const newUserRef = await fsdb.collection("users").add(newUserData);
+    await userDocRef.set(newUserData);
 
-    user = Object.assign({ id: newUserRef.id }, newUserData);
+    user = Object.assign({ id: authUser.uid }, newUserData);
 
     if (role === "seller") {
       await fsdb.collection("restaurants").add({
         ownerId: user.id,
         name: restaurantName,
+        phone: phone,
         wilaya: wilaya
       });
     }
-  }
 
-  safeStorage.setItem(
-    "wasli_session",
-    JSON.stringify({
-      userId: user.id,
-      role: user.role
-    })
-  );
+  } else {
+
+    const docSnap = await userDocRef.get();
+    const existingData = docSnap.exists
+      ? docSnap.data()
+      : { role: role, phone: phone };
+
+    const updates = {
+      name: name,
+      wilaya: wilaya
+    };
+
+    if (role === "client") {
+      updates.address = address;
+    }
+
+    if (role === "seller") {
+      updates.restaurantName = restaurantName;
+    }
+
+    await userDocRef.set(updates, { merge: true });
+
+    user = Object.assign({ id: authUser.uid }, existingData, updates);
+
+    if (role === "seller") {
+      const restSnap = await fsdb.collection("restaurants")
+        .where("ownerId", "==", user.id)
+        .limit(1)
+        .get();
+
+      if (!restSnap.empty) {
+        await restSnap.docs[0].ref.update({
+          name: restaurantName,
+          phone: phone,
+          wilaya: wilaya
+        });
+      } else {
+        await fsdb.collection("restaurants").add({
+          ownerId: user.id,
+          name: restaurantName,
+          phone: phone,
+          wilaya: wilaya
+        });
+      }
+    }
+  }
 
   renderCurrentApp();
   requestNotificationPermission();
@@ -2228,6 +2303,10 @@ async function loginInner() {
 
 function logout() {
 
+  if (firebaseReady) {
+    firebase.auth().signOut().catch(function() {});
+  }
+
   user = null;
   role = "client";
 
@@ -2235,9 +2314,8 @@ function logout() {
   clientCategory = "all";
   clientSearch = "";
   sellerTab = "orders";
+  driverTab = "requests";
   editingFoodId = null;
-
-  safeStorage.removeItem("wasli_session");
 
   showOnly("loginScreen");
 
@@ -2254,39 +2332,44 @@ function logout() {
 
 /* ================= SESSION ================= */
 
-async function restoreSession() {
-  try {
-    const raw = safeStorage.getItem("wasli_session");
-
-    if (!raw) {
-      showOnly("loginScreen");
-      return;
-    }
+function restoreSession() {
+  return new Promise(function(resolve) {
 
     if (!firebaseReady) {
       showOnly("loginScreen");
+      resolve();
       return;
     }
 
-    const session = JSON.parse(raw);
+    firebase.auth().onAuthStateChanged(async function(authUser) {
 
-    const docSnap = await fsdb.collection("users").doc(session.userId).get();
+      if (!authUser) {
+        showOnly("loginScreen");
+        resolve();
+        return;
+      }
 
-    if (!docSnap.exists || docSnap.data().role !== session.role) {
-      safeStorage.removeItem("wasli_session");
-      showOnly("loginScreen");
-      return;
-    }
+      try {
+        const docSnap = await fsdb.collection("users").doc(authUser.uid).get();
 
-    user = Object.assign({ id: docSnap.id }, docSnap.data());
-    role = user.role;
+        if (!docSnap.exists) {
+          showOnly("loginScreen");
+          resolve();
+          return;
+        }
 
-    renderCurrentApp();
+        user = Object.assign({ id: authUser.uid }, docSnap.data());
+        role = user.role;
 
-  } catch (error) {
-    safeStorage.removeItem("wasli_session");
-    showOnly("loginScreen");
-  }
+        renderCurrentApp();
+
+      } catch (error) {
+        showOnly("loginScreen");
+      }
+
+      resolve();
+    });
+  });
 }
 
 /* ================= RESTAURANT ================= */
@@ -2734,6 +2817,31 @@ function renderClientCart() {
         📞 ${esc(user.phone || "")}
       </div>
 
+      <div class="field">
+        <label>${esc(t("paymentMethod"))}</label>
+        <select id="paymentMethodSelect">
+          <option value="cash">${esc(t("payCash"))}</option>
+          <option value="card">${esc(t("payCard"))}</option>
+        </select>
+      </div>
+
+      <div id="cardFieldsBox" hidden>
+        <div class="field">
+          <label>${esc(t("cardNumber"))}</label>
+          <input id="cardNumberInput" inputmode="numeric" maxlength="19" placeholder="4111 1111 1111 1111">
+        </div>
+        <div style="display:flex; gap:10px;">
+          <div class="field" style="flex:1;">
+            <label>${esc(t("cardExpiry"))}</label>
+            <input id="cardExpiryInput" placeholder="MM/YY">
+          </div>
+          <div class="field" style="flex:1;">
+            <label>${esc(t("cardCvv"))}</label>
+            <input id="cardCvvInput" inputmode="numeric" maxlength="4" placeholder="123">
+          </div>
+        </div>
+      </div>
+
       <button
         type="button"
         id="checkoutBtn"
@@ -2768,10 +2876,18 @@ async function checkoutInner() {
   }
 
   const noteElement = $("#orderNote");
+  const paymentSelect = $("#paymentMethodSelect");
+  const selectedPaymentMethod = paymentSelect ? paymentSelect.value : "cash";
+
+  if (selectedPaymentMethod === "card") {
+    toast(t("cardComingSoon"));
+  }
 
   const restaurantId = cart[0].restaurantId;
 
   const order = {
+    paymentMethod: "cash",
+    requestedPaymentMethod: selectedPaymentMethod,
     number: String(Date.now()).slice(-8),
     clientId: user.id,
     restaurantId: restaurantId,
@@ -2787,6 +2903,7 @@ async function checkoutInner() {
       };
     }),
     total: cartTotal(),
+    platformFeeRestaurant: Math.round(cartTotal() * 0.02 * 100) / 100,
     note: noteElement ? noteElement.value.trim() : "",
     customerName: user.name,
     customerPhone: user.phone,
@@ -2809,6 +2926,35 @@ async function checkoutInner() {
   renderClient();
 
   toast(t("sent"));
+}
+
+/* ================= CUSTOMER ORDERS ================= */
+
+/* ================= CLIENT CONFIRMATION ================= */
+
+function confirmOrder(orderId) {
+  confirmOrderInner(orderId).catch(function(error) {
+    toast("خطأ: " + (error && error.message ? error.message : error));
+  });
+}
+
+async function confirmOrderInner(orderId) {
+
+  const order = db.orders.find(function(o) {
+    return o.id === orderId &&
+      o.clientId === user.id &&
+      o.status === "confirmed";
+  });
+
+  if (!order) return;
+
+  await fsdb.collection("orders").doc(orderId).update({
+    status: "readyForPickup"
+  });
+
+  renderClientOrders();
+
+  toast(t("orderConfirmedByClient"));
 }
 
 /* ================= CUSTOMER ORDERS ================= */
@@ -2907,13 +3053,34 @@ function renderClientOrders() {
           }
         </div>
 
+        <div class="info-box">
+          🏪 <strong>${esc(t("restaurant"))}:</strong>
+          ${esc(restaurant ? restaurant.name : "")}
+          ${restaurant ? callButton(restaurant.phone) : ""}
+        </div>
+
         ${
           order.driverId
             ? `
               <div class="info-box">
                 🚴 <strong>${esc(t("driverName"))}:</strong>
                 ${esc(order.driverName)}
+                ${callButton(order.driverPhone)}
               </div>
+            `
+            : ""
+        }
+
+        ${
+          order.status === "confirmed"
+            ? `
+              <button
+                type="button"
+                class="action-btn action-green"
+                style="width:100%; margin-top:10px;"
+                data-confirm-order="${esc(order.id)}">
+                ✓ ${esc(t("confirmOrderBtn"))}
+              </button>
             `
             : ""
         }
@@ -3102,8 +3269,10 @@ function renderSeller() {
 
   if (sellerTab === "orders") {
     renderSellerOrders();
-  } else {
+  } else if (sellerTab === "foods") {
     renderSellerFoods();
+  } else {
+    renderSellerEarnings();
   }
 }
 
@@ -3191,7 +3360,7 @@ function renderSellerOrders() {
           ${esc(order.customerName)}<br>
 
           📞 <strong>${esc(t("phoneLabel"))}:</strong>
-          ${esc(order.customerPhone)}<br>
+          ${esc(order.customerPhone)} ${callButton(order.customerPhone)}<br>
 
           📍 <strong>${esc(t("deliveryAddress"))}:</strong>
           ${esc(order.customerAddress)}<br>
@@ -3212,6 +3381,18 @@ function renderSellerOrders() {
               <div class="info-box">
                 🚴 ${esc(t("driverName"))}:
                 <strong>${esc(order.driverName)}</strong>
+                ${callButton(order.driverPhone)}
+              </div>
+            `
+            : ""
+        }
+
+        ${
+          order.status === "done" && order.platformFeeRestaurant != null
+            ? `
+              <div class="info-box">
+                💼 <strong>${esc(t("platformFee"))}:</strong>
+                ${money(order.platformFeeRestaurant)}
               </div>
             `
             : ""
@@ -3249,6 +3430,61 @@ function renderSellerOrders() {
 }
 
 /* ================= SELLER FOODS ================= */
+
+/* ================= SELLER EARNINGS ================= */
+
+function renderSellerEarnings() {
+
+  const restaurant = getSellerRestaurant();
+
+  if (!restaurant) return;
+
+  const doneOrders = db.orders.filter(function(o) {
+    return o.restaurantId === restaurant.id && o.status === "done";
+  });
+
+  let gross = 0;
+  let commission = 0;
+
+  doneOrders.forEach(function(o) {
+    gross += Number(o.total || 0);
+    commission += Number(o.platformFeeRestaurant || 0);
+  });
+
+  const net = gross - commission;
+
+  $("#sellerContent").innerHTML = `
+    <div class="section-title">
+      <h3>${esc(t("myEarnings"))}</h3>
+    </div>
+
+    <div class="profile-card">
+
+      <div class="info-box">
+        📦 <strong>${esc(t("completedOrdersCount"))}:</strong>
+        ${doneOrders.length}
+      </div>
+
+      <div class="info-box">
+        💵 <strong>${esc(t("grossEarnings"))}:</strong>
+        ${money(gross)}
+      </div>
+
+      <div class="info-box">
+        💼 <strong>${esc(t("commissionOwed"))}:</strong>
+        ${money(commission)}
+      </div>
+
+      <div class="total-box">
+        <div class="total-row">
+          <span>${esc(t("netEarnings"))}</span>
+          <span class="price">${money(net)}</span>
+        </div>
+      </div>
+
+    </div>
+  `;
+}
 
 function renderSellerFoods() {
 
@@ -3533,13 +3769,29 @@ function renderDriver() {
 
   $("#driverTitle").textContent = user.name;
 
+  $$(".dash-tab").forEach(function(btn) {
+    btn.classList.toggle(
+      "active",
+      btn.getAttribute("data-driver-tab") === driverTab
+    );
+  });
+
+  if (driverTab === "earnings") {
+    renderDriverEarnings();
+  } else {
+    renderDriverRequests();
+  }
+}
+
+function renderDriverRequests() {
+
   const online = !!user.online;
 
   const availableOrders = db.orders.filter(function(order) {
 
     return (
       order.wilaya === user.wilaya &&
-      order.status === "confirmed" &&
+      order.status === "readyForPickup" &&
       !order.driverId
     );
   });
@@ -3629,6 +3881,57 @@ function renderDriver() {
   $("#driverContent").innerHTML = html;
 }
 
+/* ================= DRIVER EARNINGS ================= */
+
+function renderDriverEarnings() {
+
+  const doneOrders = db.orders.filter(function(o) {
+    return o.driverId === user.id && o.status === "done";
+  });
+
+  let gross = 0;
+  let commission = 0;
+
+  doneOrders.forEach(function(o) {
+    gross += Number(o.deliveryFee || 0);
+    commission += Number(o.platformFeeDriver || 0);
+  });
+
+  const net = gross - commission;
+
+  $("#driverContent").innerHTML = `
+    <div class="section-title">
+      <h3>${esc(t("myEarnings"))}</h3>
+    </div>
+
+    <div class="profile-card">
+
+      <div class="info-box">
+        📦 <strong>${esc(t("completedOrdersCount"))}:</strong>
+        ${doneOrders.length}
+      </div>
+
+      <div class="info-box">
+        💵 <strong>${esc(t("grossEarnings"))}:</strong>
+        ${money(gross)}
+      </div>
+
+      <div class="info-box">
+        💼 <strong>${esc(t("commissionOwed"))}:</strong>
+        ${money(commission)}
+      </div>
+
+      <div class="total-box">
+        <div class="total-row">
+          <span>${esc(t("netEarnings"))}</span>
+          <span class="price">${money(net)}</span>
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+
 function renderDriverOrder(order, mine) {
 
   const restaurant = db.restaurants.find(function(r) {
@@ -3658,11 +3961,15 @@ function renderDriverOrder(order, mine) {
 
       <div class="info-box">
 
+        🏪 <strong>${esc(t("restaurant"))}:</strong>
+        ${esc(restaurant ? restaurant.name : "")}
+        ${restaurant ? callButton(restaurant.phone) : ""}<br>
+
         👤 <strong>${esc(t("customer"))}:</strong>
         ${esc(order.customerName)}<br>
 
         📞 <strong>${esc(t("phoneLabel"))}:</strong>
-        ${esc(order.customerPhone)}<br>
+        ${esc(order.customerPhone)} ${callButton(order.customerPhone)}<br>
 
         📍 <strong>${esc(t("deliveryAddress"))}:</strong>
         ${esc(order.customerAddress)}<br>
@@ -3758,7 +4065,7 @@ async function driverAcceptInner(orderId, deliveryFee) {
 
   const order = db.orders.find(function(o) {
     return o.id === orderId &&
-      o.status === "confirmed" &&
+      o.status === "readyForPickup" &&
       !o.driverId &&
       o.wilaya === user.wilaya;
   });
@@ -3768,8 +4075,10 @@ async function driverAcceptInner(orderId, deliveryFee) {
   await fsdb.collection("orders").doc(orderId).update({
     driverId: user.id,
     driverName: user.name,
+    driverPhone: user.phone,
     status: "onWay",
-    deliveryFee: Number(deliveryFee) || 0
+    deliveryFee: Number(deliveryFee) || 0,
+    platformFeeDriver: Math.round((Number(deliveryFee) || 0) * 0.02 * 100) / 100
   });
 
   renderDriver();
@@ -3781,7 +4090,7 @@ function driverReject(orderId) {
 
   const order = db.orders.find(function(o) {
     return o.id === orderId &&
-      o.status === "confirmed" &&
+      o.status === "readyForPickup" &&
       !o.driverId;
   });
 
@@ -4002,6 +4311,13 @@ document.addEventListener("click", function(event) {
     return;
   }
 
+  /* ---------- CLIENT CONFIRMS ORDER (unlocks it for drivers) ---------- */
+
+  if (target.hasAttribute("data-confirm-order")) {
+    confirmOrder(target.getAttribute("data-confirm-order"));
+    return;
+  }
+
   /* ---------- PROFILE WILAYA ---------- */
 
   if (target.id === "profileWilayaBtn") {
@@ -4042,6 +4358,17 @@ document.addEventListener("click", function(event) {
       target.getAttribute("data-seller-tab");
 
     renderSeller();
+    return;
+  }
+
+  /* ---------- DRIVER TABS ---------- */
+
+  if (target.hasAttribute("data-driver-tab")) {
+
+    driverTab =
+      target.getAttribute("data-driver-tab");
+
+    renderDriver();
     return;
   }
 
@@ -4216,6 +4543,17 @@ document.addEventListener("change", function(event) {
       .catch(function(error) {
         toast("خطأ: " + (error && error.message ? error.message : error));
       });
+
+    return;
+  }
+
+  if (event.target.id === "paymentMethodSelect") {
+
+    const cardBox = $("#cardFieldsBox");
+
+    if (cardBox) {
+      cardBox.hidden = event.target.value !== "card";
+    }
 
     return;
   }
