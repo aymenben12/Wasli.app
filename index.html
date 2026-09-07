@@ -1069,6 +1069,14 @@ html[dir="ltr"] .badge {
                  placeholder="05xxxxxxxx">
         </div>
 
+        <div class="field">
+          <label data-i18n="password">كلمة المرور</label>
+          <input id="loginPassword" type="password" autocomplete="current-password"
+                 data-placeholder-ar="اكتب كلمة المرور"
+                 data-placeholder-fr="Mot de passe"
+                 placeholder="اكتب كلمة المرور">
+        </div>
+
         <div id="restaurantField" class="field" hidden>
           <label data-i18n="restaurantName">اسم المطعم</label>
           <input id="loginRestaurant" type="text"
@@ -1267,6 +1275,28 @@ html[dir="ltr"] .badge {
     </div>
   </div>
 
+  <!-- ================= DELIVERY FEE MODAL ================= -->
+  <div id="deliveryFeeModal" class="modal" hidden>
+    <div class="modal-box">
+
+      <div class="modal-head">
+        <h3 data-i18n="deliveryFeeTitle">حدد سعر التوصيل</h3>
+        <button type="button" class="close-btn" data-close-modal="deliveryFeeModal">×</button>
+      </div>
+
+      <div class="field">
+        <label data-i18n="deliveryFeeLabel">سعر التوصيل (دج)</label>
+        <input id="deliveryFeeInput" type="number" min="0" step="10"
+               placeholder="200">
+      </div>
+
+      <button type="button" id="confirmDeliveryFeeBtn" class="primary-btn full">
+        <span data-i18n="confirmAccept">تأكيد القبول</span>
+      </button>
+
+    </div>
+  </div>
+
   <!-- ================= TOAST ================= -->
   <div id="toast" class="toast"></div>
 
@@ -1352,6 +1382,7 @@ let clientCategory = "all";
 let clientSearch = "";
 let sellerTab = "orders";
 let editingFoodId = null;
+let pendingDriverAcceptOrderId = null;
 let toastTimer = null;
 
 /* ================= WILAYAS ================= */
@@ -1524,7 +1555,23 @@ const I = {
     orderNumber: "رقم الطلب",
     restaurant: "المطعم",
     phoneLabel: "الهاتف",
-    logoutQuestion: "تم تسجيل الخروج."
+    logoutQuestion: "تم تسجيل الخروج.",
+    password: "كلمة المرور",
+    passwordRequired: "يرجى إدخال كلمة المرور.",
+    wrongPassword: "كلمة المرور غير صحيحة.",
+    deliveryFeeTitle: "حدد سعر التوصيل",
+    deliveryFeeLabel: "سعر التوصيل (دج)",
+    confirmAccept: "تأكيد القبول",
+    deliveryFeeRequired: "يرجى إدخال سعر التوصيل.",
+    foodSubtotal: "سعر الطلب",
+    deliveryFee: "سعر التوصيل",
+    grandTotal: "المجموع الكلي",
+    newOrderNotif: "طلب جديد من",
+    orderAcceptedNotif: "تم قبول طلبك من المطعم",
+    orderRejectedNotif: "تم رفض طلبك من المطعم",
+    orderOnWayNotif: "الديليفري في الطريق إليك",
+    orderDoneNotif: "تم تسليم طلبك، بالهناء والشفاء",
+    newDeliveryNotif: "طلب توصيل جديد متاح"
   },
 
   fr: {
@@ -1620,7 +1667,23 @@ const I = {
     orderNumber: "Commande",
     restaurant: "Restaurant",
     phoneLabel: "Téléphone",
-    logoutQuestion: "Vous êtes déconnecté."
+    logoutQuestion: "Vous êtes déconnecté.",
+    password: "Mot de passe",
+    passwordRequired: "Veuillez saisir le mot de passe.",
+    wrongPassword: "Mot de passe incorrect.",
+    deliveryFeeTitle: "Définir le frais de livraison",
+    deliveryFeeLabel: "Frais de livraison (DA)",
+    confirmAccept: "Confirmer l'acceptation",
+    deliveryFeeRequired: "Veuillez saisir le frais de livraison.",
+    foodSubtotal: "Sous-total repas",
+    deliveryFee: "Frais de livraison",
+    grandTotal: "Total général",
+    newOrderNotif: "Nouvelle commande de",
+    orderAcceptedNotif: "Votre commande a été acceptée par le restaurant",
+    orderRejectedNotif: "Votre commande a été refusée par le restaurant",
+    orderOnWayNotif: "Le livreur est en route",
+    orderDoneNotif: "Votre commande a été livrée, bon appétit",
+    newDeliveryNotif: "Nouvelle demande de livraison disponible"
   }
 };
 
@@ -1697,8 +1760,68 @@ function startRealtimeSync() {
     toast("Firestore (foods): " + error.message);
   });
 
+  let ordersInitialized = false;
+  let previousOrderStatusById = {};
+
   fsdb.collection("orders").onSnapshot(function(snapshot) {
-    db.orders = mapSnapshot(snapshot).sort(function(a, b) {
+
+    const newOrders = mapSnapshot(snapshot);
+
+    if (ordersInitialized && user) {
+      newOrders.forEach(function(order) {
+
+        const prevStatus = previousOrderStatusById[order.id];
+        const isNewOrder = prevStatus === undefined;
+
+        if (user.role === "client" && order.clientId === user.id) {
+
+          if (!isNewOrder && prevStatus !== order.status) {
+            if (order.status === "confirmed") {
+              notifyUser("وصلي", t("orderAcceptedNotif"));
+            } else if (order.status === "rejected") {
+              notifyUser("وصلي", t("orderRejectedNotif"));
+            } else if (order.status === "onWay") {
+              notifyUser("وصلي", t("orderOnWayNotif"));
+            } else if (order.status === "done") {
+              notifyUser("وصلي", t("orderDoneNotif"));
+            }
+          }
+        }
+
+        if (user.role === "seller") {
+          const restaurant = getSellerRestaurant();
+
+          if (
+            restaurant &&
+            order.restaurantId === restaurant.id &&
+            isNewOrder &&
+            order.status === "waiting"
+          ) {
+            notifyUser("وصلي", t("newOrderNotif") + " " + (order.customerName || ""));
+          }
+        }
+
+        if (user.role === "driver") {
+          if (
+            isNewOrder &&
+            order.status === "confirmed" &&
+            !order.driverId &&
+            order.wilaya === user.wilaya
+          ) {
+            notifyUser("وصلي", t("newDeliveryNotif"));
+          }
+        }
+      });
+    }
+
+    const updatedStatusMap = {};
+    newOrders.forEach(function(order) {
+      updatedStatusMap[order.id] = order.status;
+    });
+    previousOrderStatusById = updatedStatusMap;
+    ordersInitialized = true;
+
+    db.orders = newOrders.sort(function(a, b) {
       return (b.createdAtMs || 0) - (a.createdAtMs || 0);
     });
     if (user) renderCurrentApp();
@@ -1793,6 +1916,74 @@ function toast(message) {
   toastTimer = setTimeout(function() {
     el.classList.remove("show");
   }, 2500);
+}
+
+/* ================= NOTIFICATIONS (sound + toast + browser) =================
+
+   يعمل هذا فقط أثناء فتح التطبيق (في المقدمة أو الخلفية على نفس
+   الجهاز). إشعارات حقيقية تصل حتى مع إغلاق التطبيق بالكامل تتطلب
+   نظام Push Notifications منفصل (يحتاج ترقية Firebase لخطة مدفوعة).
+*/
+
+let audioCtx = null;
+
+function playNotificationSound() {
+  try {
+    if (!audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContextClass();
+    }
+
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume();
+    }
+
+    const now = audioCtx.currentTime;
+
+    [880, 1180].forEach(function(freq, index) {
+      const oscillator = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      oscillator.type = "sine";
+      oscillator.frequency.value = freq;
+
+      const startTime = now + index * 0.15;
+
+      gain.gain.setValueAtTime(0.0001, startTime);
+      gain.gain.linearRampToValueAtTime(0.2, startTime + 0.02);
+      gain.gain.linearRampToValueAtTime(0.0001, startTime + 0.18);
+
+      oscillator.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      oscillator.start(startTime);
+      oscillator.stop(startTime + 0.2);
+    });
+  } catch (error) {
+    /* silently ignore if audio isn't supported/allowed */
+  }
+}
+
+function requestNotificationPermission() {
+  try {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  } catch (error) {}
+}
+
+function notifyUser(title, body) {
+  toast(body);
+  playNotificationSound();
+
+  try {
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification(title, {
+        body: body,
+        icon: "icon-192.png"
+      });
+    }
+  } catch (error) {}
 }
 
 /* ================= LANGUAGE ================= */
@@ -1910,12 +2101,18 @@ async function loginInner() {
 
   const name = $("#loginName").value.trim();
   const phone = $("#loginPhone").value.trim();
+  const password = $("#loginPassword").value;
   const wilaya = $("#loginWilaya").value;
   const address = $("#loginAddress").value.trim();
   const restaurantName = $("#loginRestaurant").value.trim();
 
   if (!name || !phone || !wilaya) {
     toast(t("loginRequired"));
+    return;
+  }
+
+  if (!password) {
+    toast(t("passwordRequired"));
     return;
   }
 
@@ -1933,10 +2130,19 @@ async function loginInner() {
 
   if (existing) {
 
+    if (existing.password && existing.password !== password) {
+      toast(t("wrongPassword"));
+      return;
+    }
+
     const updates = {
       name: name,
       wilaya: wilaya
     };
+
+    if (!existing.password) {
+      updates.password = password;
+    }
 
     if (role === "client") {
       updates.address = address;
@@ -1976,6 +2182,7 @@ async function loginInner() {
       role: role,
       name: name,
       phone: phone,
+      password: password,
       wilaya: wilaya
     };
 
@@ -2013,6 +2220,7 @@ async function loginInner() {
   );
 
   renderCurrentApp();
+  requestNotificationPermission();
   toast(lang === "ar" ? "تم تسجيل الدخول بنجاح" : "Connexion réussie");
 }
 
@@ -2676,8 +2884,27 @@ function renderClientOrders() {
         </div>
 
         <div>
-          <strong>${esc(t("total"))}: </strong>
-          <span class="price">${money(order.total)}</span>
+          ${
+            order.deliveryFee != null
+              ? `
+                <div class="order-item">
+                  <span>${esc(t("foodSubtotal"))}</span>
+                  <span>${money(order.total)}</span>
+                </div>
+                <div class="order-item">
+                  <span>${esc(t("deliveryFee"))}</span>
+                  <span>${money(order.deliveryFee)}</span>
+                </div>
+                <div class="order-item">
+                  <strong>${esc(t("grandTotal"))}</strong>
+                  <strong class="price">${money(order.total + order.deliveryFee)}</strong>
+                </div>
+              `
+              : `
+                <strong>${esc(t("total"))}: </strong>
+                <span class="price">${money(order.total)}</span>
+              `
+          }
         </div>
 
         ${
@@ -3473,6 +3700,17 @@ function renderDriverOrder(order, mine) {
       </div>
 
       ${
+        mine && order.deliveryFee != null
+          ? `
+            <div class="info-box">
+              💰 <strong>${esc(t("deliveryFee"))}:</strong>
+              ${money(order.deliveryFee)}
+            </div>
+          `
+          : ""
+      }
+
+      ${
         mine
           ? `
             <button
@@ -3510,13 +3748,13 @@ function renderDriverOrder(order, mine) {
 
 /* ================= DRIVER ACTIONS ================= */
 
-function driverAccept(orderId) {
-  driverAcceptInner(orderId).catch(function(error) {
+function driverAccept(orderId, deliveryFee) {
+  driverAcceptInner(orderId, deliveryFee).catch(function(error) {
     toast("خطأ: " + (error && error.message ? error.message : error));
   });
 }
 
-async function driverAcceptInner(orderId) {
+async function driverAcceptInner(orderId, deliveryFee) {
 
   const order = db.orders.find(function(o) {
     return o.id === orderId &&
@@ -3530,7 +3768,8 @@ async function driverAcceptInner(orderId) {
   await fsdb.collection("orders").doc(orderId).update({
     driverId: user.id,
     driverName: user.name,
-    status: "onWay"
+    status: "onWay",
+    deliveryFee: Number(deliveryFee) || 0
   });
 
   renderDriver();
@@ -3861,9 +4100,29 @@ document.addEventListener("click", function(event) {
 
   if (target.hasAttribute("data-driver-accept")) {
 
-    driverAccept(
-      target.getAttribute("data-driver-accept")
-    );
+    pendingDriverAcceptOrderId = target.getAttribute("data-driver-accept");
+
+    $("#deliveryFeeInput").value = "";
+    $("#deliveryFeeModal").hidden = false;
+
+    return;
+  }
+
+  /* ---------- CONFIRM DELIVERY FEE ---------- */
+
+  if (target.id === "confirmDeliveryFeeBtn") {
+
+    const fee = $("#deliveryFeeInput").value;
+
+    if (!fee || Number(fee) < 0) {
+      toast(t("deliveryFeeRequired"));
+      return;
+    }
+
+    driverAccept(pendingDriverAcceptOrderId, fee);
+
+    pendingDriverAcceptOrderId = null;
+    closeModal("deliveryFeeModal");
 
     return;
   }
