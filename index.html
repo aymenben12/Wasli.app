@@ -1871,38 +1871,27 @@ function mapSnapshot(snapshot) {
   });
 }
 
-/* مستمع مستخدمين (users) يبدأ فقط عند فتح لوحة الإدارة —
-   ليس محمّلاً لكل الزوار العاديين، توفيراً للقراءات وللخصوصية. */
-function startUsersListenerIfNeeded() {
-  if (usersListenerStarted || !firebaseReady) return;
-  usersListenerStarted = true;
-
-  fsdb.collection("users").onSnapshot(function(snapshot) {
-    db.users = mapSnapshot(snapshot);
-    if (adminPanelOpen) {
-      renderAdminPanel();
-    }
-  }, function(error) {
-    toast("Firestore (users): " + error.message);
-  });
+/* أخطاء "الصلاحيات" التي تحدث للحظة قصيرة جداً فور تسجيل الدخول
+   (قبل أن يصل رمز المصادقة الداخلي بالكامل لخوادم Firebase) غير
+   ضارة وتُصلح نفسها تلقائياً خلال أقل من ثانية. نتجاهلها بصمت
+   بدل إخافة المستخدم برسالة خطأ لا داعي لها. */
+function handleFirestoreListenerError(label, error) {
+  if (error && error.code === "permission-denied") {
+    return;
+  }
+  toast("Firestore (" + label + "): " + (error && error.message ? error.message : error));
 }
 
-function startRealtimeSync() {
-  if (!firebaseReady) return;
+/* مستمع مستخدمين (users) يبدأ فقط عند فتح لوحة الإدارة —
+   ليس محمّلاً لكل الزوار العاديين، توفيراً للقراءات وللخصوصية. */
+let ordersListenerStarted = false;
 
-  fsdb.collection("restaurants").onSnapshot(function(snapshot) {
-    db.restaurants = mapSnapshot(snapshot);
-    if (user) renderCurrentApp();
-  }, function(error) {
-    toast("Firestore (restaurants): " + error.message);
-  });
-
-  fsdb.collection("foods").onSnapshot(function(snapshot) {
-    db.foods = mapSnapshot(snapshot);
-    if (user) renderCurrentApp();
-  }, function(error) {
-    toast("Firestore (foods): " + error.message);
-  });
+/* مستمع الطلبات يبدأ فقط بعد تسجيل دخول حقيقي (Firebase Auth) —
+   لأن قاعدة الأمان الجديدة تتطلب مصادقة لقراءة هذه المجموعة،
+   فتشغيله قبل ذلك يُرجع خطأ صلاحيات لحظياً بلا فائدة. */
+function startOrdersListener() {
+  if (ordersListenerStarted || !firebaseReady) return;
+  ordersListenerStarted = true;
 
   let ordersInitialized = false;
   let previousOrderStatusById = {};
@@ -1969,9 +1958,43 @@ function startRealtimeSync() {
       return (b.createdAtMs || 0) - (a.createdAtMs || 0);
     });
     if (user) renderCurrentApp();
+    if (adminPanelOpen) renderAdminPanel();
   }, function(error) {
-    toast("Firestore (orders): " + error.message);
+    handleFirestoreListenerError("orders", error);
   });
+}
+
+function startUsersListenerIfNeeded() {
+  if (usersListenerStarted || !firebaseReady) return;
+  usersListenerStarted = true;
+
+  fsdb.collection("users").onSnapshot(function(snapshot) {
+    db.users = mapSnapshot(snapshot);
+    if (adminPanelOpen) {
+      renderAdminPanel();
+    }
+  }, function(error) {
+    handleFirestoreListenerError("users", error);
+  });
+}
+
+function startRealtimeSync() {
+  if (!firebaseReady) return;
+
+  fsdb.collection("restaurants").onSnapshot(function(snapshot) {
+    db.restaurants = mapSnapshot(snapshot);
+    if (user) renderCurrentApp();
+  }, function(error) {
+    handleFirestoreListenerError("restaurants", error);
+  });
+
+  fsdb.collection("foods").onSnapshot(function(snapshot) {
+    db.foods = mapSnapshot(snapshot);
+    if (user) renderCurrentApp();
+  }, function(error) {
+    handleFirestoreListenerError("foods", error);
+  });
+
 }
 
 /* السلة تبقى محلية على كل جهاز (لا حاجة لمشاركتها بين الأدوار) */
@@ -2394,6 +2417,7 @@ async function loginInner() {
   }
 
   renderCurrentApp();
+  startOrdersListener();
   requestNotificationPermission();
   toast(lang === "ar" ? "تم تسجيل الدخول بنجاح" : "Connexion réussie");
 }
@@ -2461,6 +2485,7 @@ function restoreSession() {
         role = user.role;
 
         renderCurrentApp();
+        startOrdersListener();
 
       } catch (error) {
         showOnly("loginScreen");
@@ -4729,6 +4754,7 @@ async function attemptAdminLoginInner() {
   adminTab = "sellers";
 
   startUsersListenerIfNeeded();
+  startOrdersListener();
   showOnly("adminApp");
   renderAdminPanel();
 }
