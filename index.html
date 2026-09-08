@@ -1477,9 +1477,6 @@ let driverTab = "requests";
 let adminTab = "sellers";
 let usersListenerStarted = false;
 let adminPanelOpen = false;
-
-/* ⚠️ غيّر هذه الكلمة إلى كلمة مرور خاصة بك فقط لا يعرفها أحد آخر */
-const ADMIN_PASSWORD = "wasli-admin-2026";
 let editingFoodId = null;
 let pendingDriverAcceptOrderId = null;
 let toastTimer = null;
@@ -4681,17 +4678,50 @@ document.addEventListener("click", function(event) {
 
 /* ================= ADMIN PANEL ================= */
 
-function openAdminLogin() {
-  $("#adminPasswordInput").value = "";
-  $("#adminPasswordModal").hidden = false;
-}
+const ADMIN_AUTH_EMAIL = "admin@wasli.app";
 
 function attemptAdminLogin() {
-  const entered = $("#adminPasswordInput").value;
+  attemptAdminLoginInner().catch(function(error) {
+    toast("خطأ: " + (error && error.message ? error.message : error));
+  });
+}
 
-  if (entered !== ADMIN_PASSWORD) {
-    toast("كلمة مرور الإدارة غير صحيحة.");
+async function attemptAdminLoginInner() {
+
+  const password = $("#adminPasswordInput").value;
+
+  if (!password || password.length < 6) {
+    toast("كلمة المرور يجب أن تكون 6 أحرف على الأقل.");
     return;
+  }
+
+  let authUser = null;
+
+  try {
+    /* نحاول الإنشاء أولاً (فقط أول مرة على الإطلاق ستنجح هذه
+       الخطوة وتُنشئ حساب الإدارة الحقيقي بكلمة مرورك). في كل
+       مرة لاحقة سيفشل بـ"email-already-in-use" وننتقل لتسجيل
+       الدخول العادي بنفس كلمة المرور. */
+    const credential = await firebase.auth().createUserWithEmailAndPassword(ADMIN_AUTH_EMAIL, password);
+    authUser = credential.user;
+
+    window.prompt(
+      "تم إنشاء حساب الإدارة لأول مرة! انسخ هذا المعرّف (UID) وضعه في قواعد الأمان كما سيشرح لك Claude:",
+      authUser.uid
+    );
+
+  } catch (error) {
+    if (error.code === "auth/email-already-in-use") {
+      try {
+        const credential = await firebase.auth().signInWithEmailAndPassword(ADMIN_AUTH_EMAIL, password);
+        authUser = credential.user;
+      } catch (signInError) {
+        toast("كلمة مرور الإدارة غير صحيحة.");
+        return;
+      }
+    } else {
+      throw error;
+    }
   }
 
   closeModal("adminPasswordModal");
@@ -4703,8 +4733,16 @@ function attemptAdminLogin() {
   renderAdminPanel();
 }
 
+function openAdminLogin() {
+  $("#adminPasswordInput").value = "";
+  $("#adminPasswordModal").hidden = false;
+}
+
 function adminLogout() {
   adminPanelOpen = false;
+  if (firebaseReady) {
+    firebase.auth().signOut().catch(function() {});
+  }
   showOnly("loginScreen");
   toast("تم الخروج من لوحة الإدارة.");
 }
