@@ -1113,13 +1113,6 @@ html[dir="ltr"] .badge {
         <span data-i18n="demoNote">نسخة تجريبية: البيانات محفوظة على هذا الجهاز.</span>
       </p>
 
-      <p style="text-align:center; margin-top:10px;">
-        <a href="#" id="adminPanelLink"
-           style="color:#bbb; font-size:12px; text-decoration:underline;">
-          لوحة الإدارة
-        </a>
-      </p>
-
     </div>
   </section>
 
@@ -1137,66 +1130,6 @@ html[dir="ltr"] .badge {
     </div>
   </section>
 
-  <!-- ================= ADMIN PANEL ================= -->
-  <section id="adminApp" class="app-screen" hidden>
-
-    <header class="dashboard-header">
-      <div>
-        <small>لوحة الإدارة</small>
-        <h2>وصلي</h2>
-      </div>
-
-      <button type="button" class="logout-btn" data-admin-logout>
-        🚪 خروج
-      </button>
-    </header>
-
-    <div class="dashboard-tabs">
-      <button type="button" class="dash-tab active" data-admin-tab="sellers">
-        🏪 المطاعم
-      </button>
-
-      <button type="button" class="dash-tab" data-admin-tab="drivers">
-        🚴 الديليفري
-      </button>
-    </div>
-
-    <div style="padding:12px 15px 0;">
-      <div class="field">
-        <input id="adminSearchInput" type="text"
-               placeholder="ابحث بالاسم أو رقم الهاتف...">
-      </div>
-      <div class="field">
-        <select id="adminWilayaFilter">
-          <option value="">كل الولايات</option>
-        </select>
-      </div>
-    </div>
-
-    <main id="adminContent" class="dashboard-content"></main>
-
-  </section>
-
-  <!-- ================= ADMIN PASSWORD MODAL ================= -->
-  <div id="adminPasswordModal" class="modal" hidden>
-    <div class="modal-box">
-
-      <div class="modal-head">
-        <h3>دخول الإدارة</h3>
-        <button type="button" class="close-btn" data-close-modal="adminPasswordModal">×</button>
-      </div>
-
-      <div class="field">
-        <label>كلمة مرور الإدارة</label>
-        <input id="adminPasswordInput" type="password">
-      </div>
-
-      <button type="button" id="adminPasswordSubmit" class="primary-btn full">
-        دخول
-      </button>
-
-    </div>
-  </div>
 
 
 
@@ -1486,11 +1419,6 @@ let clientCategory = "all";
 let clientSearch = "";
 let sellerTab = "orders";
 let driverTab = "requests";
-let adminTab = "sellers";
-let adminSearchQuery = "";
-let adminWilayaFilter = "";
-let usersListenerStarted = false;
-let adminPanelOpen = false;
 let editingFoodId = null;
 let pendingDriverAcceptOrderId = null;
 let toastTimer = null;
@@ -1896,13 +1824,11 @@ function handleFirestoreListenerError(label, error) {
   toast("Firestore (" + label + "): " + (error && error.message ? error.message : error));
 }
 
-/* مستمع مستخدمين (users) يبدأ فقط عند فتح لوحة الإدارة —
-   ليس محمّلاً لكل الزوار العاديين، توفيراً للقراءات وللخصوصية. */
-let ordersListenerStarted = false;
-
 /* مستمع الطلبات يبدأ فقط بعد تسجيل دخول حقيقي (Firebase Auth) —
    لأن قاعدة الأمان الجديدة تتطلب مصادقة لقراءة هذه المجموعة،
    فتشغيله قبل ذلك يُرجع خطأ صلاحيات لحظياً بلا فائدة. */
+let ordersListenerStarted = false;
+
 function startOrdersListener() {
   if (ordersListenerStarted || !firebaseReady) return;
   ordersListenerStarted = true;
@@ -1972,23 +1898,8 @@ function startOrdersListener() {
       return (b.createdAtMs || 0) - (a.createdAtMs || 0);
     });
     if (user) renderCurrentApp();
-    if (adminPanelOpen) renderAdminPanel();
   }, function(error) {
     handleFirestoreListenerError("orders", error);
-  });
-}
-
-function startUsersListenerIfNeeded() {
-  if (usersListenerStarted || !firebaseReady) return;
-  usersListenerStarted = true;
-
-  fsdb.collection("users").onSnapshot(function(snapshot) {
-    db.users = mapSnapshot(snapshot);
-    if (adminPanelOpen) {
-      renderAdminPanel();
-    }
-  }, function(error) {
-    handleFirestoreListenerError("users", error);
   });
 }
 
@@ -2088,8 +1999,7 @@ function showOnly(id) {
     "#clientApp",
     "#sellerApp",
     "#driverApp",
-    "#suspendedScreen",
-    "#adminApp"
+    "#suspendedScreen"
   ].forEach(function(selector) {
     const el = $(selector);
     if (el) el.hidden = true;
@@ -4701,22 +4611,6 @@ document.addEventListener("change", function(event) {
     return;
   }
 
-  if (event.target.id === "adminWilayaFilter") {
-    adminWilayaFilter = event.target.value;
-    renderAdminPanel();
-    return;
-  }
-
-});
-
-document.addEventListener("input", function(event) {
-
-  if (event.target.id === "adminSearchInput") {
-    adminSearchQuery = event.target.value.trim();
-    renderAdminPanel();
-    return;
-  }
-
 });
 
 /* ================= MODAL BACKDROP ================= */
@@ -4727,322 +4621,6 @@ document.addEventListener("click", function(event) {
     event.target.classList.contains("modal")
   ) {
     event.target.hidden = true;
-  }
-
-});
-
-/* ================= ADMIN PANEL ================= */
-
-const ADMIN_AUTH_EMAIL = "admin@wasli.app";
-
-function attemptAdminLogin() {
-  attemptAdminLoginInner().catch(function(error) {
-    toast("خطأ: " + (error && error.message ? error.message : error));
-  });
-}
-
-async function attemptAdminLoginInner() {
-
-  const password = $("#adminPasswordInput").value;
-
-  if (!password || password.length < 6) {
-    toast("كلمة المرور يجب أن تكون 6 أحرف على الأقل.");
-    return;
-  }
-
-  let authUser = null;
-
-  try {
-    /* نحاول الإنشاء أولاً (فقط أول مرة على الإطلاق ستنجح هذه
-       الخطوة وتُنشئ حساب الإدارة الحقيقي بكلمة مرورك). في كل
-       مرة لاحقة سيفشل بـ"email-already-in-use" وننتقل لتسجيل
-       الدخول العادي بنفس كلمة المرور. */
-    const credential = await firebase.auth().createUserWithEmailAndPassword(ADMIN_AUTH_EMAIL, password);
-    authUser = credential.user;
-
-    window.prompt(
-      "تم إنشاء حساب الإدارة لأول مرة! انسخ هذا المعرّف (UID) وضعه في قواعد الأمان كما سيشرح لك Claude:",
-      authUser.uid
-    );
-
-  } catch (error) {
-    if (error.code === "auth/email-already-in-use") {
-      try {
-        const credential = await firebase.auth().signInWithEmailAndPassword(ADMIN_AUTH_EMAIL, password);
-        authUser = credential.user;
-      } catch (signInError) {
-        toast("كلمة مرور الإدارة غير صحيحة.");
-        return;
-      }
-    } else {
-      throw error;
-    }
-  }
-
-  closeModal("adminPasswordModal");
-  adminPanelOpen = true;
-  adminTab = "sellers";
-
-  startUsersListenerIfNeeded();
-  startOrdersListener();
-  showOnly("adminApp");
-  renderAdminPanel();
-}
-
-function openAdminLogin() {
-  $("#adminPasswordInput").value = "";
-  $("#adminPasswordModal").hidden = false;
-}
-
-function adminLogout() {
-  adminPanelOpen = false;
-  if (firebaseReady) {
-    firebase.auth().signOut().catch(function() {});
-  }
-  showOnly("loginScreen");
-  toast("تم الخروج من لوحة الإدارة.");
-}
-
-function renderAdminPanel() {
-  $$(".dash-tab").forEach(function(btn) {
-    btn.classList.toggle(
-      "active",
-      btn.getAttribute("data-admin-tab") === adminTab
-    );
-  });
-
-  fillWilayaSelect($("#adminWilayaFilter"), adminWilayaFilter);
-
-  const noWilayaOption = document.createElement("option");
-  noWilayaOption.value = "";
-  noWilayaOption.textContent = "كل الولايات";
-  $("#adminWilayaFilter").insertBefore(noWilayaOption, $("#adminWilayaFilter").firstChild);
-  $("#adminWilayaFilter").value = adminWilayaFilter;
-
-  if (adminTab === "drivers") {
-    renderAdminDrivers();
-  } else {
-    renderAdminSellers();
-  }
-}
-
-function matchesAdminFilters(name, phone, wilaya) {
-
-  if (adminWilayaFilter && wilaya !== adminWilayaFilter) {
-    return false;
-  }
-
-  if (adminSearchQuery) {
-    const q = adminSearchQuery.toLowerCase();
-    const nameMatch = (name || "").toLowerCase().indexOf(q) !== -1;
-    const phoneMatch = (phone || "").indexOf(adminSearchQuery) !== -1;
-    if (!nameMatch && !phoneMatch) return false;
-  }
-
-  return true;
-}
-
-function buildAdminEntities(role) {
-
-  const entities = [];
-
-  if (role === "seller") {
-
-    db.users.filter(function(u) { return u.role === "seller"; }).forEach(function(seller) {
-
-      const restaurant = db.restaurants.find(function(r) {
-        return r.ownerId === seller.id;
-      });
-
-      const lastSettled = seller.lastSettledAt || 0;
-
-      const doneOrders = db.orders.filter(function(o) {
-        return restaurant &&
-          o.restaurantId === restaurant.id &&
-          o.status === "done" &&
-          (o.createdAtMs || 0) > lastSettled;
-      });
-
-      let commission = 0;
-      doneOrders.forEach(function(o) {
-        commission += Number(o.platformFeeRestaurant || 0);
-      });
-
-      entities.push({
-        id: seller.id,
-        title: restaurant ? restaurant.name : seller.name,
-        name: seller.name,
-        phone: seller.phone,
-        wilaya: seller.wilaya,
-        ordersCount: doneOrders.length,
-        commission: commission,
-        suspended: !!seller.suspended
-      });
-    });
-
-  } else {
-
-    db.users.filter(function(u) { return u.role === "driver"; }).forEach(function(driver) {
-
-      const lastSettled = driver.lastSettledAt || 0;
-
-      const doneOrders = db.orders.filter(function(o) {
-        return o.driverId === driver.id &&
-          o.status === "done" &&
-          (o.createdAtMs || 0) > lastSettled;
-      });
-
-      let commission = 0;
-      doneOrders.forEach(function(o) {
-        commission += Number(o.platformFeeDriver || 0);
-      });
-
-      entities.push({
-        id: driver.id,
-        title: driver.name,
-        name: driver.name,
-        phone: driver.phone,
-        wilaya: driver.wilaya,
-        ordersCount: doneOrders.length,
-        commission: commission,
-        suspended: !!driver.suspended
-      });
-    });
-  }
-
-  return entities.filter(function(e) {
-    return matchesAdminFilters(e.name, e.phone, e.wilaya);
-  });
-}
-
-function renderAdminSellers() {
-
-  const all = buildAdminEntities("seller");
-  const unpaid = all.filter(function(e) { return e.commission > 0; });
-  const paid = all.filter(function(e) { return e.commission <= 0; });
-
-  let html = `
-    <div class="section-title">
-      <h3>🔴 مطاعم عليها عمولة</h3>
-      <small>${unpaid.length}</small>
-    </div>
-  `;
-
-  html += unpaid.length
-    ? unpaid.map(renderAdminCard).join("")
-    : `<div class="empty"><p>لا يوجد مطاعم عليها عمولة حالياً.</p></div>`;
-
-  html += `
-    <div class="section-title">
-      <h3>🟢 مطاعم مؤكدة الدفع</h3>
-      <small>${paid.length}</small>
-    </div>
-  `;
-
-  html += paid.length
-    ? paid.map(renderAdminCard).join("")
-    : `<div class="empty"><p>لا يوجد مطاعم مؤكدة الدفع بعد.</p></div>`;
-
-  $("#adminContent").innerHTML = html;
-}
-
-function renderAdminDrivers() {
-
-  const all = buildAdminEntities("driver");
-  const unpaid = all.filter(function(e) { return e.commission > 0; });
-  const paid = all.filter(function(e) { return e.commission <= 0; });
-
-  let html = `
-    <div class="section-title">
-      <h3>🔴 ديليفري عليهم عمولة</h3>
-      <small>${unpaid.length}</small>
-    </div>
-  `;
-
-  html += unpaid.length
-    ? unpaid.map(renderAdminCard).join("")
-    : `<div class="empty"><p>لا يوجد ديليفري عليهم عمولة حالياً.</p></div>`;
-
-  html += `
-    <div class="section-title">
-      <h3>🟢 ديليفري مؤكدون الدفع</h3>
-      <small>${paid.length}</small>
-    </div>
-  `;
-
-  html += paid.length
-    ? paid.map(renderAdminCard).join("")
-    : `<div class="empty"><p>لا يوجد ديليفري مؤكدون الدفع بعد.</p></div>`;
-
-  $("#adminContent").innerHTML = html;
-}
-
-function adminMarkPaid(userId) {
-  adminMarkPaidInner(userId).catch(function(error) {
-    toast("خطأ: " + (error && error.message ? error.message : error));
-  });
-}
-
-async function adminMarkPaidInner(userId) {
-  await fsdb.collection("users").doc(userId).update({
-    lastSettledAt: Date.now()
-  });
-
-  toast("تم تسجيل الدفع، تم تصفير العمولة المستحقة.");
-}
-
-function adminToggleSuspend(userId, currentlySuspended) {
-  adminToggleSuspendInner(userId, currentlySuspended).catch(function(error) {
-    toast("خطأ: " + (error && error.message ? error.message : error));
-  });
-}
-
-async function adminToggleSuspendInner(userId, currentlySuspended) {
-  await fsdb.collection("users").doc(userId).update({
-    suspended: !currentlySuspended
-  });
-
-  toast(currentlySuspended ? "تم تفعيل الحساب." : "تم إيقاف الحساب مؤقتاً.");
-}
-
-document.addEventListener("click", function(event) {
-
-  if (event.target.id === "adminPanelLink") {
-    event.preventDefault();
-    openAdminLogin();
-    return;
-  }
-
-  if (event.target.id === "adminPasswordSubmit") {
-    attemptAdminLogin();
-    return;
-  }
-
-  const adminLogoutBtn = event.target.closest("[data-admin-logout]");
-  if (adminLogoutBtn) {
-    adminLogout();
-    return;
-  }
-
-  const adminTabBtn = event.target.closest("[data-admin-tab]");
-  if (adminTabBtn) {
-    adminTab = adminTabBtn.getAttribute("data-admin-tab");
-    renderAdminPanel();
-    return;
-  }
-
-  const markPaidBtn = event.target.closest("[data-admin-mark-paid]");
-  if (markPaidBtn && !markPaidBtn.disabled) {
-    adminMarkPaid(markPaidBtn.getAttribute("data-admin-mark-paid"));
-    return;
-  }
-
-  const toggleSuspendBtn = event.target.closest("[data-admin-toggle-suspend]");
-  if (toggleSuspendBtn) {
-    const userId = toggleSuspendBtn.getAttribute("data-admin-toggle-suspend");
-    const isSuspended = toggleSuspendBtn.textContent.indexOf("تفعيل") !== -1;
-    adminToggleSuspend(userId, isSuspended);
-    return;
   }
 
 });
