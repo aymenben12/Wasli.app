@@ -1161,6 +1161,18 @@ html[dir="ltr"] .badge {
       </button>
     </div>
 
+    <div style="padding:12px 15px 0;">
+      <div class="field">
+        <input id="adminSearchInput" type="text"
+               placeholder="ابحث بالاسم أو رقم الهاتف...">
+      </div>
+      <div class="field">
+        <select id="adminWilayaFilter">
+          <option value="">كل الولايات</option>
+        </select>
+      </div>
+    </div>
+
     <main id="adminContent" class="dashboard-content"></main>
 
   </section>
@@ -1475,6 +1487,8 @@ let clientSearch = "";
 let sellerTab = "orders";
 let driverTab = "requests";
 let adminTab = "sellers";
+let adminSearchQuery = "";
+let adminWilayaFilter = "";
 let usersListenerStarted = false;
 let adminPanelOpen = false;
 let editingFoodId = null;
@@ -1671,7 +1685,7 @@ const I = {
     newDeliveryNotif: "طلب توصيل جديد متاح",
     confirmOrderBtn: "تأكيد الطلب",
     orderConfirmedByClient: "تم تأكيد الطلب، بانتظار الديليفري.",
-    platformFee: "عمولة وصلي (2%)",
+    platformFee: "عمولة وصلي (10%)",
     myEarnings: "أرباحي",
     grossEarnings: "إجمالي المبلغ المُحصَّل",
     netEarnings: "صافي دخلك",
@@ -1799,7 +1813,7 @@ const I = {
     newDeliveryNotif: "Nouvelle demande de livraison disponible",
     confirmOrderBtn: "Confirmer la commande",
     orderConfirmedByClient: "Commande confirmée, en attente d'un livreur.",
-    platformFee: "Commission Wasli (2%)",
+    platformFee: "Commission Wasli (10%)",
     myEarnings: "Mes revenus",
     grossEarnings: "Montant total encaissé",
     netEarnings: "Votre revenu net",
@@ -3032,7 +3046,7 @@ async function checkoutInner() {
       };
     }),
     total: cartTotal(),
-    platformFeeRestaurant: Math.round(cartTotal() * 0.02 * 100) / 100,
+    platformFeeRestaurant: Math.round(cartTotal() * 0.10 * 100) / 100,
     note: noteElement ? noteElement.value.trim() : "",
     customerName: user.name,
     customerPhone: user.phone,
@@ -4207,7 +4221,7 @@ async function driverAcceptInner(orderId, deliveryFee) {
     driverPhone: user.phone,
     status: "onWay",
     deliveryFee: Number(deliveryFee) || 0,
-    platformFeeDriver: Math.round((Number(deliveryFee) || 0) * 0.02 * 100) / 100
+    platformFeeDriver: Math.round((Number(deliveryFee) || 0) * 0.10 * 100) / 100
   });
 
   renderDriver();
@@ -4687,6 +4701,22 @@ document.addEventListener("change", function(event) {
     return;
   }
 
+  if (event.target.id === "adminWilayaFilter") {
+    adminWilayaFilter = event.target.value;
+    renderAdminPanel();
+    return;
+  }
+
+});
+
+document.addEventListener("input", function(event) {
+
+  if (event.target.id === "adminSearchInput") {
+    adminSearchQuery = event.target.value.trim();
+    renderAdminPanel();
+    return;
+  }
+
 });
 
 /* ================= MODAL BACKDROP ================= */
@@ -4781,6 +4811,14 @@ function renderAdminPanel() {
     );
   });
 
+  fillWilayaSelect($("#adminWilayaFilter"), adminWilayaFilter);
+
+  const noWilayaOption = document.createElement("option");
+  noWilayaOption.value = "";
+  noWilayaOption.textContent = "كل الولايات";
+  $("#adminWilayaFilter").insertBefore(noWilayaOption, $("#adminWilayaFilter").firstChild);
+  $("#adminWilayaFilter").value = adminWilayaFilter;
+
   if (adminTab === "drivers") {
     renderAdminDrivers();
   } else {
@@ -4788,165 +4826,155 @@ function renderAdminPanel() {
   }
 }
 
+function matchesAdminFilters(name, phone, wilaya) {
+
+  if (adminWilayaFilter && wilaya !== adminWilayaFilter) {
+    return false;
+  }
+
+  if (adminSearchQuery) {
+    const q = adminSearchQuery.toLowerCase();
+    const nameMatch = (name || "").toLowerCase().indexOf(q) !== -1;
+    const phoneMatch = (phone || "").indexOf(adminSearchQuery) !== -1;
+    if (!nameMatch && !phoneMatch) return false;
+  }
+
+  return true;
+}
+
+function buildAdminEntities(role) {
+
+  const entities = [];
+
+  if (role === "seller") {
+
+    db.users.filter(function(u) { return u.role === "seller"; }).forEach(function(seller) {
+
+      const restaurant = db.restaurants.find(function(r) {
+        return r.ownerId === seller.id;
+      });
+
+      const lastSettled = seller.lastSettledAt || 0;
+
+      const doneOrders = db.orders.filter(function(o) {
+        return restaurant &&
+          o.restaurantId === restaurant.id &&
+          o.status === "done" &&
+          (o.createdAtMs || 0) > lastSettled;
+      });
+
+      let commission = 0;
+      doneOrders.forEach(function(o) {
+        commission += Number(o.platformFeeRestaurant || 0);
+      });
+
+      entities.push({
+        id: seller.id,
+        title: restaurant ? restaurant.name : seller.name,
+        name: seller.name,
+        phone: seller.phone,
+        wilaya: seller.wilaya,
+        ordersCount: doneOrders.length,
+        commission: commission,
+        suspended: !!seller.suspended
+      });
+    });
+
+  } else {
+
+    db.users.filter(function(u) { return u.role === "driver"; }).forEach(function(driver) {
+
+      const lastSettled = driver.lastSettledAt || 0;
+
+      const doneOrders = db.orders.filter(function(o) {
+        return o.driverId === driver.id &&
+          o.status === "done" &&
+          (o.createdAtMs || 0) > lastSettled;
+      });
+
+      let commission = 0;
+      doneOrders.forEach(function(o) {
+        commission += Number(o.platformFeeDriver || 0);
+      });
+
+      entities.push({
+        id: driver.id,
+        title: driver.name,
+        name: driver.name,
+        phone: driver.phone,
+        wilaya: driver.wilaya,
+        ordersCount: doneOrders.length,
+        commission: commission,
+        suspended: !!driver.suspended
+      });
+    });
+  }
+
+  return entities.filter(function(e) {
+    return matchesAdminFilters(e.name, e.phone, e.wilaya);
+  });
+}
+
 function renderAdminSellers() {
 
-  const sellers = db.users.filter(function(u) {
-    return u.role === "seller";
-  });
+  const all = buildAdminEntities("seller");
+  const unpaid = all.filter(function(e) { return e.commission > 0; });
+  const paid = all.filter(function(e) { return e.commission <= 0; });
 
   let html = `
     <div class="section-title">
-      <h3>المطاعم</h3>
-      <small>${sellers.length}</small>
+      <h3>🔴 مطاعم عليها عمولة</h3>
+      <small>${unpaid.length}</small>
     </div>
   `;
 
-  if (!sellers.length) {
-    html += `
-      <div class="empty">
-        <div class="empty-icon">🏪</div>
-        <p>لا يوجد مطاعم مسجّلة بعد.</p>
-      </div>
-    `;
-    $("#adminContent").innerHTML = html;
-    return;
-  }
+  html += unpaid.length
+    ? unpaid.map(renderAdminCard).join("")
+    : `<div class="empty"><p>لا يوجد مطاعم عليها عمولة حالياً.</p></div>`;
 
-  sellers.forEach(function(seller) {
+  html += `
+    <div class="section-title">
+      <h3>🟢 مطاعم مؤكدة الدفع</h3>
+      <small>${paid.length}</small>
+    </div>
+  `;
 
-    const restaurant = db.restaurants.find(function(r) {
-      return r.ownerId === seller.id;
-    });
-
-    const lastSettled = seller.lastSettledAt || 0;
-
-    const doneOrders = db.orders.filter(function(o) {
-      return restaurant &&
-        o.restaurantId === restaurant.id &&
-        o.status === "done" &&
-        (o.createdAtMs || 0) > lastSettled;
-    });
-
-    let commission = 0;
-    doneOrders.forEach(function(o) {
-      commission += Number(o.platformFeeRestaurant || 0);
-    });
-
-    html += renderAdminCard({
-      id: seller.id,
-      title: restaurant ? restaurant.name : seller.name,
-      name: seller.name,
-      phone: seller.phone,
-      wilaya: seller.wilaya,
-      ordersCount: doneOrders.length,
-      commission: commission,
-      suspended: !!seller.suspended
-    });
-  });
+  html += paid.length
+    ? paid.map(renderAdminCard).join("")
+    : `<div class="empty"><p>لا يوجد مطاعم مؤكدة الدفع بعد.</p></div>`;
 
   $("#adminContent").innerHTML = html;
 }
 
 function renderAdminDrivers() {
 
-  const drivers = db.users.filter(function(u) {
-    return u.role === "driver";
-  });
+  const all = buildAdminEntities("driver");
+  const unpaid = all.filter(function(e) { return e.commission > 0; });
+  const paid = all.filter(function(e) { return e.commission <= 0; });
 
   let html = `
     <div class="section-title">
-      <h3>الديليفري</h3>
-      <small>${drivers.length}</small>
+      <h3>🔴 ديليفري عليهم عمولة</h3>
+      <small>${unpaid.length}</small>
     </div>
   `;
 
-  if (!drivers.length) {
-    html += `
-      <div class="empty">
-        <div class="empty-icon">🚴</div>
-        <p>لا يوجد ديليفري مسجّل بعد.</p>
-      </div>
-    `;
-    $("#adminContent").innerHTML = html;
-    return;
-  }
+  html += unpaid.length
+    ? unpaid.map(renderAdminCard).join("")
+    : `<div class="empty"><p>لا يوجد ديليفري عليهم عمولة حالياً.</p></div>`;
 
-  drivers.forEach(function(driver) {
+  html += `
+    <div class="section-title">
+      <h3>🟢 ديليفري مؤكدون الدفع</h3>
+      <small>${paid.length}</small>
+    </div>
+  `;
 
-    const lastSettled = driver.lastSettledAt || 0;
-
-    const doneOrders = db.orders.filter(function(o) {
-      return o.driverId === driver.id &&
-        o.status === "done" &&
-        (o.createdAtMs || 0) > lastSettled;
-    });
-
-    let commission = 0;
-    doneOrders.forEach(function(o) {
-      commission += Number(o.platformFeeDriver || 0);
-    });
-
-    html += renderAdminCard({
-      id: driver.id,
-      title: driver.name,
-      name: driver.name,
-      phone: driver.phone,
-      wilaya: driver.wilaya,
-      ordersCount: doneOrders.length,
-      commission: commission,
-      suspended: !!driver.suspended
-    });
-  });
+  html += paid.length
+    ? paid.map(renderAdminCard).join("")
+    : `<div class="empty"><p>لا يوجد ديليفري مؤكدون الدفع بعد.</p></div>`;
 
   $("#adminContent").innerHTML = html;
-}
-
-function renderAdminCard(data) {
-
-  const settled = data.commission <= 0;
-
-  return `
-    <div class="order-card">
-
-      <div class="order-head">
-        <div>
-          <h3>${esc(data.title)}</h3>
-          <small>👤 ${esc(data.name)}</small>
-        </div>
-
-        <span class="status ${settled ? "confirmed" : "rejected"}">
-          ${settled ? "✓ مسدّد" : "⚠ عليه مبلغ"}
-        </span>
-      </div>
-
-      <div class="info-box">
-        📞 <strong>الهاتف:</strong> ${esc(data.phone)} ${callButton(data.phone)}<br>
-        📍 <strong>الولاية:</strong> ${esc(getWilaya(data.wilaya))}<br>
-        📦 <strong>عدد الطلبات:</strong> ${data.ordersCount}<br>
-        💼 <strong>العمولة المستحقة:</strong> ${money(data.commission)}
-      </div>
-
-      <div class="action-row">
-
-        <button
-          type="button"
-          class="action-btn action-green"
-          data-admin-mark-paid="${esc(data.id)}"
-          ${settled ? "disabled" : ""}>
-          ✓ تأكيد الدفع
-        </button>
-
-        <button
-          type="button"
-          class="action-btn ${data.suspended ? "action-green" : "action-red"}"
-          data-admin-toggle-suspend="${esc(data.id)}">
-          ${data.suspended ? "▶ تفعيل الحساب" : "⏸ إيقاف الحساب"}
-        </button>
-
-      </div>
-
-    </div>
-  `;
 }
 
 function adminMarkPaid(userId) {
