@@ -1828,79 +1828,166 @@ function handleFirestoreListenerError(label, error) {
    لأن قاعدة الأمان الجديدة تتطلب مصادقة لقراءة هذه المجموعة،
    فتشغيله قبل ذلك يُرجع خطأ صلاحيات لحظياً بلا فائدة. */
 let ordersListenerStarted = false;
+let ordersById = {};
+let ordersInitialized = false;
+let previousOrderStatusById = {};
 
-function startOrdersListener() {
-  if (ordersListenerStarted || !firebaseReady) return;
-  ordersListenerStarted = true;
+function processOrderNotifications(newOrders) {
+  if (!ordersInitialized || !user) return;
 
-  let ordersInitialized = false;
-  let previousOrderStatusById = {};
+  newOrders.forEach(function(order) {
 
-  fsdb.collection("orders").onSnapshot(function(snapshot) {
+    const prevStatus = previousOrderStatusById[order.id];
+    const isNewOrder = prevStatus === undefined;
 
-    const newOrders = mapSnapshot(snapshot);
+    if (user.role === "client" && order.clientId === user.id) {
 
-    if (ordersInitialized && user) {
-      newOrders.forEach(function(order) {
-
-        const prevStatus = previousOrderStatusById[order.id];
-        const isNewOrder = prevStatus === undefined;
-
-        if (user.role === "client" && order.clientId === user.id) {
-
-          if (!isNewOrder && prevStatus !== order.status) {
-            if (order.status === "confirmed") {
-              notifyUser("وصلي", t("orderAcceptedNotif"));
-            } else if (order.status === "rejected") {
-              notifyUser("وصلي", t("orderRejectedNotif"));
-            } else if (order.status === "onWay") {
-              notifyUser("وصلي", t("orderOnWayNotif"));
-            } else if (order.status === "done") {
-              notifyUser("وصلي", t("orderDoneNotif"));
-            }
-          }
+      if (!isNewOrder && prevStatus !== order.status) {
+        if (order.status === "confirmed") {
+          notifyUser("وصلي", t("orderAcceptedNotif"));
+        } else if (order.status === "rejected") {
+          notifyUser("وصلي", t("orderRejectedNotif"));
+        } else if (order.status === "onWay") {
+          notifyUser("وصلي", t("orderOnWayNotif"));
+        } else if (order.status === "done") {
+          notifyUser("وصلي", t("orderDoneNotif"));
         }
-
-        if (user.role === "seller") {
-          const restaurant = getSellerRestaurant();
-
-          if (
-            restaurant &&
-            order.restaurantId === restaurant.id &&
-            isNewOrder &&
-            order.status === "waiting"
-          ) {
-            notifyUser("وصلي", t("newOrderNotif") + " " + (order.customerName || ""));
-          }
-        }
-
-        if (user.role === "driver") {
-          if (
-            isNewOrder &&
-            order.status === "confirmed" &&
-            !order.driverId &&
-            order.wilaya === user.wilaya
-          ) {
-            notifyUser("وصلي", t("newDeliveryNotif"));
-          }
-        }
-      });
+      }
     }
 
-    const updatedStatusMap = {};
-    newOrders.forEach(function(order) {
-      updatedStatusMap[order.id] = order.status;
-    });
-    previousOrderStatusById = updatedStatusMap;
-    ordersInitialized = true;
+    if (user.role === "seller") {
+      const restaurant = getSellerRestaurant();
 
-    db.orders = newOrders.sort(function(a, b) {
-      return (b.createdAtMs || 0) - (a.createdAtMs || 0);
-    });
-    if (user) renderCurrentApp();
-  }, function(error) {
-    handleFirestoreListenerError("orders", error);
+      if (
+        restaurant &&
+        order.restaurantId === restaurant.id &&
+        isNewOrder &&
+        order.status === "waiting"
+      ) {
+        notifyUser("وصلي", t("newOrderNotif") + " " + (order.customerName || ""));
+      }
+    }
+
+    if (user.role === "driver") {
+      if (
+        isNewOrder &&
+        order.status === "readyForPickup" &&
+        !order.driverId &&
+        order.wilaya === user.wilaya
+      ) {
+        notifyUser("وصلي", t("newDeliveryNotif"));
+      }
+    }
   });
+}
+
+function commitOrdersUpdate() {
+  const newOrders = Object.values(ordersById);
+
+  processOrderNotifications(newOrders);
+
+  const updatedStatusMap = {};
+  newOrders.forEach(function(order) {
+    updatedStatusMap[order.id] = order.status;
+  });
+  previousOrderStatusById = updatedStatusMap;
+  ordersInitialized = true;
+
+  db.orders = newOrders.sort(function(a, b) {
+    return (b.createdAtMs || 0) - (a.createdAtMs || 0);
+  });
+
+  if (user) renderCurrentApp();
+}
+
+/* دمج نتائج استعلام معيّن (يُعرَّف بمفتاح فريد) داخل الخريطة
+   المشتركة — يُستخدم هذا حتى نجمع أكثر من استعلام في نفس الوقت
+   (الديليفري مثلاً يحتاج استعلامين منفصلين: الطلبات المتاحة له +
+   طلباته المقبولة). كل استعلام "يملك" فقط الأطراف الناتجة عنه،
+   ولا يمسح نتائج الاستعلامات الأخرى. */
+const ordersByQueryKey = {};
+
+function mergeQueryResults(queryKey, snapshot) {
+  const newIds = {};
+
+  snapshot.docs.forEach(function(docSnap) {
+    const order = Object.assign({ id: docSnap.id }, docSnap.data());
+    newIds[order.id] = true;
+    ordersById[order.id] = order;
+  });
+
+  const previousIds = ordersByQueryKey[queryKey] || {};
+  Object.keys(previousIds).forEach(function(id) {
+    if (!newIds[id]) {
+      const stillOwnedByOtherQuery = Object.keys(ordersByQueryKey).some(function(otherKey) {
+        return otherKey !== queryKey &&
+          ordersByQueryKey[otherKey] &&
+          ordersByQueryKey[otherKey][id];
+      });
+      if (!stillOwnedByOtherQuery) {
+        delete ordersById[id];
+      }
+    }
+  });
+
+  ordersByQueryKey[queryKey] = newIds;
+  commitOrdersUpdate();
+}
+
+function startOrdersListener() {
+  if (ordersListenerStarted || !firebaseReady || !user) return;
+
+  if (user.role === "client") {
+
+    ordersListenerStarted = true;
+
+    fsdb.collection("orders").where("clientId", "==", user.id)
+      .onSnapshot(function(snapshot) {
+        mergeQueryResults("client", snapshot);
+      }, function(error) {
+        handleFirestoreListenerError("orders", error);
+      });
+
+  } else if (user.role === "seller") {
+
+    const restaurant = getSellerRestaurant();
+
+    if (!restaurant) {
+      /* مطعم المستخدم لم يُحمَّل بعد من مستمع restaurants —
+         نعيد المحاولة بعد لحظة قصيرة بدل الفشل الصامت. */
+      setTimeout(startOrdersListener, 400);
+      return;
+    }
+
+    ordersListenerStarted = true;
+
+    fsdb.collection("orders").where("restaurantId", "==", restaurant.id)
+      .onSnapshot(function(snapshot) {
+        mergeQueryResults("seller", snapshot);
+      }, function(error) {
+        handleFirestoreListenerError("orders", error);
+      });
+
+  } else if (user.role === "driver") {
+
+    ordersListenerStarted = true;
+
+    fsdb.collection("orders")
+      .where("status", "==", "readyForPickup")
+      .where("driverId", "==", null)
+      .onSnapshot(function(snapshot) {
+        mergeQueryResults("driver_available", snapshot);
+      }, function(error) {
+        handleFirestoreListenerError("orders", error);
+      });
+
+    fsdb.collection("orders").where("driverId", "==", user.id)
+      .onSnapshot(function(snapshot) {
+        mergeQueryResults("driver_mine", snapshot);
+      }, function(error) {
+        handleFirestoreListenerError("orders", error);
+      });
+  }
 }
 
 function startRealtimeSync() {
